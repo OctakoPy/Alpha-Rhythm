@@ -1,0 +1,106 @@
+/* Aurora Effect */
+@keyframes aurora-wave {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(10px) scaleY(1.1);
+  }
+}
+
+.aurora-wave {
+  background: linear-gradient(
+    90deg,
+    rgba(124, 58, 237, 0.3),
+    rgba(236, 72, 153, 0.3),
+    rgba(34, 211, 238, 0.3)
+  );
+  filter: blur(20px);
+  animation: aurora-wave 8s ease-in-out infinite;
+}
+
+/* Letter Effects */
+.letter-glow {
+  text-shadow: 0 0 10px currentColor;
+  animation: letter-pulse 2s ease-in-out infinite;
+}
+
+.letter-spark::after {
+  content: '✨';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  animation: spark-fade 0.5s ease-out forwards;
+}
+
+.letter-trail::after {
+  content: attr(data-letter);
+  position: absolute;
+  left: 0;
+  opacity: 0.5;
+  transform: translateX(20px);
+  animation: letter-trail 0.3s ease-out;
+}
+
+.letter-explode::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, currentColor 0%, transparent 70%);
+  animation: letter-explode 0.3s ease-out;
+}
+
+.letter-lightning::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  background: linear-gradient(45deg, transparent 45%, currentColor 50%, transparent 55%);
+  animation: letter-lightning 0.2s ease-out;
+}
+
+.letter-shockwave::after {
+  content: '';
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  animation: letter-shockwave 0.5s ease-out infinite;
+}
+
+/* Animations */
+@keyframes letter-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes spark-fade {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes letter-trail {
+  0% { transform: translateX(0); opacity: 0.5; }
+  100% { transform: translateX(20px); opacity: 0; }
+}
+
+@keyframes letter-explode {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes letter-lightning {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes letter-shockwave {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes vignette-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.6; }
+}

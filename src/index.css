@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Animations */
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes levelTransition {
+  0% { transform: scale(1); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes sparkle {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Utility Classes */
+.animate-flash { animation: flash 0.5s infinite; }
+.animate-level-transition { animation: levelTransition 1s ease-out; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-pulse-custom { animation: pulse 2s ease-in-out infinite; }
+
+/* Level-specific Background Effects */
+.background-geometric {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.background-waves {
+  background-image: linear-gradient(45deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,.1) 50%, rgba(0,0,0,.1) 75%, transparent 75%, transparent);
+  background-size: 60px 60px;
+  animation: moveWaves 2s linear infinite;
+}
+
+.background-reactive {
+  position: relative;
+  overflow: hidden;
+}
+
+.background-reactive::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.2) 100%);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.background-nebula {
+  position: relative;
+}
+
+.background-nebula::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 70%);
+  animation: nebulaPulse 4s ease-in-out infinite;
+}
+
+.background-kaleidoscope {
+  position: relative;
+  overflow: hidden;
+}
+
+.background-kaleidoscope::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255,0,0,0.1),
+    rgba(255,165,0,0.1),
+    rgba(255,255,0,0.1),
+    rgba(0,255,0,0.1),
+    rgba(0,0,255,0.1),
+    rgba(238,130,238,0.1)
+  );
+  animation: rotate 20s linear infinite;
+}
+
+/* Letter Effects */
+.letter-glow {
+  text-shadow: 0 0 10px rgba(66, 153, 225, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.letter-sparks::after {
+  content: '✨';
+  position: absolute;
+  animation: sparkle 0.5s ease-out;
+}
+
+.letter-trail {
+  position: relative;
+}
+
+.letter-trail::after {
+  content: attr(data-letter);
+  position: absolute;
+  left: 0;
+  opacity: 0.5;
+  animation: trail 0.3s ease-out;
+}
+
+.letter-explode {
+  position: relative;
+}
+
+.letter-explode::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+  animation: explode 0.3s ease-out;
+}
+
+.letter-lightning {
+  position: relative;
+}
+
+.letter-lightning::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.8) 50%, transparent 55%);
+  animation: lightning 0.2s ease-out;
+}
+
+.letter-shockwave {
+  position: relative;
+}
+
+.letter-shockwave::after {
+  content: '';
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.8);
+  animation: shockwave 0.5s ease-out infinite;
+}
+
+/* Additional Animations */
+@keyframes moveWaves {
+  0% { background-position: 0 0; }
+  100% { background-position: 60px 60px; }
+}
+
+@keyframes nebulaPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes trail {
+  0% { transform: translateX(0); opacity: 0.5; }
+  100% { transform: translateX(20px); opacity: 0; }
+}
+
+@keyframes explode {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+@keyframes lightning {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes shockwave {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}

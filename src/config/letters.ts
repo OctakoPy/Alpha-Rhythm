@@ -1,0 +1,5 @@
+export const STARTING_LETTERS = ['ab', 'ac', 'ad', 'af', 'ag', 'al', 'am', 'an', 'ap', 'ar', 'as', 'at', 'au', 'be', 'bi', 'br', 'co', 'ce', 'ch', 'cl', 'cr', 'de', 'di', 'dr', 'em', 'en', 'eq', 'ev', 'ex', 'fl', 'fr', 'gr', 'gl', 'im', 'in', 'ir', 'ma', 'me', 'mi', 'mo', 'mu', 'ne', 'no', 'ob', 'oc', 'op', 'or', 'ov', 'pa', 'pe', 'ph', 'pl', 'po', 'pr', 'qu', 'ra', 're', 'ro', 'sa', 'sc', 'se', 'sh', 'si', 'sl', 'sm', 'sn', 'so', 'sp', 'st', 'su', 'sw', 'ta', 'te', 'th', 'ti', 'tr', 'un', 'up', 'va', 've', 'vi', 'wa', 'we', 'wh', 'wi', 'wr', 'ba', 'bl', 'bo', 'ca', 'fa', 'fi', 'fo', 'ha', 'he', 'hi', 'ho', 'jo', 'ju', 'ki', 'kn', 'la', 'le', 'li', 'lo', 'na', 'ni', 'pi', 'ri', 'to', 'wo', 'sk', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
+export const getRandomLetter = (): string => {
+  return STARTING_LETTERS[Math.floor(Math.random() * STARTING_LETTERS.length)];
+};
