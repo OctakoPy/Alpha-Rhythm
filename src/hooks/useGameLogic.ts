@@ -128,9 +128,9 @@ export const useGameLogic = () => {
   const restartGame = useCallback(() => {
     soundManager.stopAllMusic();
     soundManager.startLevelMusic(1);
-    
+  
     setGameState((prev) => {
-      const newState = {
+      const newState: GameState = {
         currentLetter: getRandomLetter(),
         nextLetter: getRandomLetter(),
         currentLevel: 1,
@@ -139,15 +139,16 @@ export const useGameLogic = () => {
         timeRemaining: LEVELS[0].timeLimit,
         wordInput: '',
         isGameOver: false,
-        usedWords: new Set(),
+        usedWords: new Set<string>(), // Explicitly specify Set<string>
         bpm: LEVELS[0].bpm,
       };
-      
+  
       soundManager.startDrowningSound();
-      
+  
       return newState;
     });
   }, []);
+  
 
   useEffect(() => {
     if (gameState.isGameOver) return;

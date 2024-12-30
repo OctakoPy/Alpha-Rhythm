@@ -1,15 +1,11 @@
 let dictionaryWords: Set<string> | null = null;
 
-async function loadDictionary(): Promise<Set<string>> {
+export async function loadDictionary(): Promise<Set<string>> {
   if (dictionaryWords) return dictionaryWords;
   
   try {
     const response = await fetch('/dictionary.txt');
-    const text = await response.text();
-    
-    // Debug: Check the raw text format
-    console.log('First few characters:', text.slice(0, 100).split('').map(c => c.charCodeAt(0)));
-    
+    const text = await response.text();    
     // Debug: Check for different line endings
     const words = text.split(/\r?\n/).map(word => {
       const trimmed = word.toLowerCase().trim();
@@ -27,17 +23,6 @@ async function loadDictionary(): Promise<Set<string>> {
     });
 
     dictionaryWords = new Set(words);
-    
-    // Debug: Check if specific words exist
-    console.log('Dictionary size:', dictionaryWords.size);
-    console.log('Contains "iguana":', dictionaryWords.has('iguana'));
-    console.log('All variations:', {
-      withSpace: dictionaryWords.has('iguana '),
-      withNewline: dictionaryWords.has('iguana\n'),
-      withCarriageReturn: dictionaryWords.has('iguana\r'),
-      uppercase: dictionaryWords.has('IGUANA')
-    });
-
     return dictionaryWords;
   } catch (error) {
     console.error('Failed to load dictionary:', error);

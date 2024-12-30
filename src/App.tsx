@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { ProgressBar } from './components/ProgressBar';
 import { GameOver } from './components/GameOver';
 import { LevelEffects } from './components/LevelEffects';
@@ -10,13 +10,15 @@ import { CoverPage } from './components/CoverPage';
 import { LevelDisplay } from './components/LevelDisplay';
 import { useLevel } from './hooks/useLevel';
 import { useGameLogic } from './hooks/useGameLogic';
+import { loadDictionary } from './utils/dictionary'; // Import the dictionary loader
 import type { GameOverCondition } from './types/game';
 
 export default function App() {
-  const [showCover, setShowCover] = React.useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false); // New state for errors
+  const [showCover, setShowCover] = useState(false);
   const {
     gameState,
-    setGameState,
     handleInputChange,
     handleKeyPress,
     restartGame,
@@ -24,10 +26,45 @@ export default function App() {
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
 
+  // Load assets at the start
+  useEffect(() => {
+    const initializeGame = async () => {
+      try {
+        await loadDictionary();
+        setLoading(false); // Assets are ready
+        setShowCover(true); // Show cover page after loading
+      } catch (error) {
+        console.error('Failed to load assets:', error);
+        setLoading(false); // Stop loading
+        setError(true); // Set error state
+      }
+    };
+
+    initializeGame();
+  }, []);
+
   const handleStartGame = () => {
     setShowCover(false);
     restartGame();
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-bold">Loading assets...</h1>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-bold text-red-500">
+          Sorry! AlphaRhythm is currently down!
+        </h1>
+      </div>
+    );
+  }
 
   if (showCover) {
     return <CoverPage highScore={gameState.highScore} onStartGame={handleStartGame} />;
@@ -86,6 +123,7 @@ export default function App() {
           attemptedWord={gameState.wordInput}
           condition={gameState.gameOverReason as GameOverCondition}
           onRestart={restartGame}
+          setShowCover={setShowCover}
         />
       )}
     </div>
