@@ -8,14 +8,15 @@ import { WordInput } from './components/WordInput';
 import { CurrentLetter } from './components/CurrentLetter';
 import { CoverPage } from './components/CoverPage';
 import { LevelDisplay } from './components/LevelDisplay';
+import { Credits } from './components/Credits';
 import { useLevel } from './hooks/useLevel';
 import { useGameLogic } from './hooks/useGameLogic';
-import { loadDictionary } from './utils/dictionary'; // Import the dictionary loader
+import { loadDictionary } from './utils/dictionary';
 import type { GameOverCondition } from './types/game';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false); // New state for errors
+  const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
   const {
     gameState,
@@ -26,17 +27,16 @@ export default function App() {
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
 
-  // Load assets at the start
   useEffect(() => {
     const initializeGame = async () => {
       try {
         await loadDictionary();
-        setLoading(false); // Assets are ready
-        setShowCover(true); // Show cover page after loading
+        setLoading(false);
+        setShowCover(true);
       } catch (error) {
         console.error('Failed to load assets:', error);
-        setLoading(false); // Stop loading
-        setError(true); // Set error state
+        setLoading(false);
+        setError(true);
       }
     };
 
@@ -52,6 +52,7 @@ export default function App() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <h1 className="text-2xl font-bold">Loading assets...</h1>
+        <Credits />
       </div>
     );
   }
@@ -62,12 +63,18 @@ export default function App() {
         <h1 className="text-2xl font-bold text-red-500">
           Sorry! AlphaRhythm is currently down!
         </h1>
+        <Credits />
       </div>
     );
   }
 
   if (showCover) {
-    return <CoverPage highScore={gameState.highScore} onStartGame={handleStartGame} />;
+    return (
+      <>
+        <CoverPage highScore={gameState.highScore} onStartGame={handleStartGame} />
+        <Credits />
+      </>
+    );
   }
 
   return (
@@ -126,6 +133,8 @@ export default function App() {
           setShowCover={setShowCover}
         />
       )}
+
+      <Credits />
     </div>
   );
-}
+};
