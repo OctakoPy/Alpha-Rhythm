@@ -49,11 +49,21 @@ export default function App() {
 
   useEffect(() => {
     const handleResize = () => {
-      setViewportHeight(window.innerHeight); // Adjust for virtual keyboard
+      if (window.visualViewport) {
+        // Adjust height when keyboard is visible
+        setViewportHeight(window.visualViewport.height);
+      } else {
+        setViewportHeight(window.innerHeight); // Fallback for older browsers
+      }
     };
 
+    window.visualViewport?.addEventListener('resize', handleResize);
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const handleStartGame = () => {
