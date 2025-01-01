@@ -19,7 +19,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight); // Initial viewport height
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight); // Dynamically track the viewport height
 
   const {
     gameState,
@@ -47,14 +47,14 @@ export default function App() {
     initializeGame();
   }, []);
 
-  // Listen to viewport height changes (e.g., when the keyboard appears)
+  // Adjust viewport height dynamically when the keyboard appears
   useEffect(() => {
     const handleViewportResize = () => {
       setViewportHeight(window.visualViewport?.height || window.innerHeight);
     };
 
     window.visualViewport?.addEventListener("resize", handleViewportResize);
-    window.addEventListener("resize", handleViewportResize); // Fallback
+    window.addEventListener("resize", handleViewportResize); // Fallback for non-visualViewport browsers
 
     return () => {
       window.visualViewport?.removeEventListener("resize", handleViewportResize);
@@ -69,8 +69,15 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <h1 className="text-2xl font-bold">Loading assets...</h1>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>Loading assets...</h1>
         <Credits />
       </div>
     );
@@ -78,8 +85,15 @@ export default function App() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <h1 className="text-2xl font-bold text-red-500">
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <h1 style={{ fontSize: "2rem", fontWeight: "bold", color: "red" }}>
           Sorry! AlphaRhythm is currently down!
         </h1>
         <Credits />
@@ -98,8 +112,14 @@ export default function App() {
 
   return (
     <div
-      className="game-container"
-      style={{ height: `${viewportHeight}px` }} // Dynamically adjust height
+      style={{
+        height: `${viewportHeight}px`, // Dynamically adjust the container height
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        backgroundColor: "#3b82f6", // Example blue background
+        position: "relative",
+      }}
     >
       <LevelEffects level={currentLevel} />
 
@@ -108,14 +128,33 @@ export default function App() {
       )}
 
       {/* Header */}
-      <div className="game-header">
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "1rem",
+          backgroundColor: "rgba(0, 0, 0, 0.1)", // Optional sticky background
+        }}
+      >
         <LevelDisplay level={currentLevel} />
         <GameHeader tempo={levelConfig.tempo} />
         <GameStats score={gameState.score} highScore={gameState.highScore} />
       </div>
 
       {/* Game Area */}
-      <div className="game-area">
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "1rem",
+        }}
+      >
         <CurrentLetter
           letter={gameState.currentLetter}
           nextLetter={gameState.nextLetter}
