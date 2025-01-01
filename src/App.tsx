@@ -19,7 +19,8 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight); // Dynamically track the viewport height
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const {
     gameState,
@@ -32,35 +33,35 @@ export default function App() {
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
 
   useEffect(() => {
-    const initializeGame = async () => {
-      try {
-        await loadDictionary();
-        setLoading(false);
-        setShowCover(true);
-      } catch (error) {
-        console.error("Failed to load assets:", error);
-        setLoading(false);
-        setError(true);
-      }
+    const handleResize = () => {
+      // Check if visualViewport is available before using it
+      const visualViewport = window.visualViewport;
+  
+      // Check if the keyboard is visible by comparing viewport height
+      const keyboardVisible =
+        visualViewport &&
+        window.innerHeight - visualViewport.height > 100;
+  
+      setIsKeyboardVisible(!!keyboardVisible); // Ensure it's always true or false
+      setViewportHeight(
+        keyboardVisible ? visualViewport.height : window.innerHeight
+      );
     };
-
-    initializeGame();
-  }, []);
-
-  // Adjust viewport height dynamically when the keyboard appears
-  useEffect(() => {
-    const handleViewportResize = () => {
-      setViewportHeight(window.visualViewport?.height || window.innerHeight);
-    };
-
-    window.visualViewport?.addEventListener("resize", handleViewportResize);
-    window.addEventListener("resize", handleViewportResize); // Fallback for non-visualViewport browsers
-
+  
+    handleResize(); // Initial setup
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleResize);
+    }
+    window.addEventListener("resize", handleResize);
+  
     return () => {
-      window.visualViewport?.removeEventListener("resize", handleViewportResize);
-      window.removeEventListener("resize", handleViewportResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleResize);
+      }
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
+  
 
   const handleStartGame = () => {
     setShowCover(false);
@@ -69,15 +70,8 @@ export default function App() {
 
   if (loading) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>Loading assets...</h1>
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-bold">Loading assets...</h1>
         <Credits />
       </div>
     );
@@ -85,15 +79,8 @@ export default function App() {
 
   if (error) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <h1 style={{ fontSize: "2rem", fontWeight: "bold", color: "red" }}>
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-bold text-red-500">
           Sorry! AlphaRhythm is currently down!
         </h1>
         <Credits />
@@ -112,13 +99,12 @@ export default function App() {
 
   return (
     <div
+      className="min-h-screen bg-blue-500 relative"
       style={{
-        height: `${viewportHeight}px`, // Dynamically adjust the container height
+        height: `${viewportHeight}px`,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        backgroundColor: "#3b82f6", // Example blue background
-        position: "relative",
       }}
     >
       <LevelEffects level={currentLevel} />
@@ -129,30 +115,26 @@ export default function App() {
 
       {/* Header */}
       <div
-        style={{
-          position: "sticky",
-          top: 0,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "1rem",
-          backgroundColor: "rgba(0, 0, 0, 0.1)", // Optional sticky background
-        }}
+        className={`absolute top-4 w-full px-4 ${
+          isKeyboardVisible ? "hidden" : ""
+        }`}
       >
-        <LevelDisplay level={currentLevel} />
-        <GameHeader tempo={levelConfig.tempo} />
-        <GameStats score={gameState.score} highScore={gameState.highScore} />
+        <div className="flex justify-between items-center max-w-5xl mx-auto">
+          <LevelDisplay level={currentLevel} />
+          <GameHeader tempo={levelConfig.tempo} />
+          <GameStats
+            score={gameState.score}
+            highScore={gameState.highScore}
+          />
+        </div>
       </div>
 
-      {/* Game Area */}
+      {/* Main Game Area */}
       <div
+        className="flex-grow flex flex-col justify-center items-center"
         style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "1rem",
+          paddingTop: isKeyboardVisible ? "10px" : "20px",
+          paddingBottom: isKeyboardVisible ? "10px" : "40px",
         }}
       >
         <CurrentLetter
@@ -162,18 +144,25 @@ export default function App() {
           minLength={levelConfig.minWordLength}
         />
 
-        <ProgressBar
-          timeRemaining={gameState.timeRemaining}
-          totalTime={levelConfig.timeLimit}
-        />
+        <div
+          className="w-full max-w-2xl mx-auto px-4 space-y-4"
+          style={{
+            marginTop: isKeyboardVisible ? "0" : "20px",
+          }}
+        >
+          <ProgressBar
+            timeRemaining={gameState.timeRemaining}
+            totalTime={levelConfig.timeLimit}
+          />
 
-        <WordInput
-          value={gameState.wordInput}
-          onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
-          disabled={gameState.isGameOver}
-          currentLetter={gameState.currentLetter}
-        />
+          <WordInput
+            value={gameState.wordInput}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            disabled={gameState.isGameOver}
+            currentLetter={gameState.currentLetter}
+          />
+        </div>
       </div>
 
       {gameState.isGameOver && (
