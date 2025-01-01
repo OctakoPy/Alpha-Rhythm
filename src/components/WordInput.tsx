@@ -17,7 +17,6 @@ export const WordInput: React.FC<WordInputProps> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-focus on mount and after game restart
   useEffect(() => {
     if (!disabled && inputRef.current) {
       inputRef.current.focus();
@@ -28,6 +27,11 @@ export const WordInput: React.FC<WordInputProps> = ({
     <input
       ref={inputRef}
       type="text"
+      inputMode="text" // Explicitly set input mode
+      autoCapitalize="none" // Prevent auto capitalization
+      autoComplete="off" // Disable autocomplete
+      autoCorrect="off" // Disable autocorrect
+      spellCheck="false" // Disable spellcheck
       value={value}
       onChange={onChange}
       onKeyPress={onKeyPress}

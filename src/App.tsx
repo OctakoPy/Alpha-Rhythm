@@ -19,6 +19,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
+  // Add state to track viewport height for mobile
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  
   const {
     gameState,
     handleInputChange,
@@ -28,6 +31,24 @@ export default function App() {
   } = useGameLogic();
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
+
+  // Handle viewport height changes (e.g., when virtual keyboard appears)
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportHeight(window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+    // Add event listener for iOS virtual keyboard
+    window.addEventListener('focusin', handleResize);
+    window.addEventListener('focusout', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('focusin', handleResize);
+      window.removeEventListener('focusout', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const initializeGame = async () => {
@@ -80,16 +101,18 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen relative">
+    <div 
+      className="relative flex flex-col items-center justify-between overflow-hidden"
+      style={{ height: `${viewportHeight}px` }}
+    >
       <LevelEffects level={currentLevel} />
       
-      {/* Add Octopus Effect */}
       {gameState.showOctopusEffect && (
         <OctopusPowerup onComplete={handlePowerupComplete} />
       )}
       
-      {/* Header Layout */}
-      <div className="absolute top-4 w-full px-4">
+      {/* Header Layout - Compact on mobile */}
+      <div className="w-full px-2 sm:px-4 pt-2 sm:pt-4">
         <div className="flex justify-between items-center">
           <LevelDisplay level={currentLevel} />
           <GameHeader tempo={levelConfig.tempo} />
@@ -100,33 +123,37 @@ export default function App() {
         </div>
       </div>
 
-      {/* Current Letter - Center of screen */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        <CurrentLetter 
-          letter={gameState.currentLetter}
-          nextLetter={gameState.nextLetter}
-          level={currentLevel}
-          minLength={levelConfig.minWordLength}
-        />
-      </div>
+      {/* Game Content Container - Flexbox for dynamic spacing */}
+      <div className="flex-1 flex flex-col items-center justify-center w-full px-4 relative">
+        {/* Current Letter - Responsive positioning */}
+        <div className="transform -translate-y-1/4 sm:-translate-y-1/2">
+          <CurrentLetter 
+            letter={gameState.currentLetter}
+            nextLetter={gameState.nextLetter}
+            level={currentLevel}
+            minLength={levelConfig.minWordLength}
+          />
+        </div>
 
-      {/* Progress Bar - Bottom third of screen */}
-      <div className="absolute bottom-32 left-1/2 -translate-x-1/2 w-96">
-        <ProgressBar
-          timeRemaining={gameState.timeRemaining}
-          totalTime={levelConfig.timeLimit}
-        />
-      </div>
-
-      {/* Word Input - Bottom of screen */}
-      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-96">
-        <WordInput
-          value={gameState.wordInput}
-          onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
-          disabled={gameState.isGameOver}
-          currentLetter={gameState.currentLetter}
-        />
+        {/* Bottom Game Controls - Adjust based on viewport height */}
+        <div className="absolute bottom-0 w-full flex flex-col items-center space-y-4 pb-4">
+          <div className="w-full max-w-sm sm:max-w-lg px-2">
+            <ProgressBar
+              timeRemaining={gameState.timeRemaining}
+              totalTime={levelConfig.timeLimit}
+            />
+          </div>
+          
+          <div className="w-full max-w-sm sm:max-w-lg px-2">
+            <WordInput
+              value={gameState.wordInput}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              disabled={gameState.isGameOver}
+              currentLetter={gameState.currentLetter}
+            />
+          </div>
+        </div>
       </div>
 
       {gameState.isGameOver && (
@@ -144,4 +171,4 @@ export default function App() {
       <Credits />
     </div>
   );
-};
+}
