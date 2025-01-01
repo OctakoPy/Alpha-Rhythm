@@ -19,13 +19,14 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
-  
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+
   const {
     gameState,
     handleInputChange,
     handleKeyPress,
     restartGame,
-    handlePowerupComplete
+    handlePowerupComplete,
   } = useGameLogic();
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
@@ -44,6 +45,15 @@ export default function App() {
     };
 
     initializeGame();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportHeight(window.innerHeight); // Adjust for virtual keyboard
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const handleStartGame = () => {
@@ -81,30 +91,33 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-500 relative">
+    <div
+      className="min-h-screen bg-blue-500 relative"
+      style={{ height: `${viewportHeight}px` }} // Dynamically adjust height
+    >
       <LevelEffects level={currentLevel} />
-      
+
       {gameState.showOctopusEffect && (
         <OctopusPowerup onComplete={handlePowerupComplete} />
       )}
-      
+
       {/* Header */}
       <div className="absolute top-4 w-full px-4">
         <div className="flex justify-between items-center max-w-5xl mx-auto">
           <LevelDisplay level={currentLevel} />
           <GameHeader tempo={levelConfig.tempo} />
-          <GameStats 
+          <GameStats
             score={gameState.score}
             highScore={gameState.highScore}
           />
         </div>
       </div>
 
-      {/* Game Area - Using absolute positioning for consistent layout */}
+      {/* Game Area */}
       <div className="absolute inset-0 pt-20 pb-4 flex flex-col">
         {/* Current Letter Section */}
         <div className="flex-grow flex items-center justify-center md:transform md:-translate-y-12">
-          <CurrentLetter 
+          <CurrentLetter
             letter={gameState.currentLetter}
             nextLetter={gameState.nextLetter}
             level={currentLevel}
@@ -118,7 +131,7 @@ export default function App() {
             timeRemaining={gameState.timeRemaining}
             totalTime={levelConfig.timeLimit}
           />
-          
+
           <WordInput
             value={gameState.wordInput}
             onChange={handleInputChange}
