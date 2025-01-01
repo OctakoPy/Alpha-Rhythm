@@ -7,8 +7,13 @@ import { getGameOverMessage } from '../utils/gameMessages';
 import { soundManager } from '../audio/SoundManager';
 import type { GameState, GameOverCondition } from '../types/game';
 
+interface ExtendedGameState extends GameState {
+  octopusPowerupActive: boolean;
+  showOctopusEffect: boolean;
+}
+
 export const useGameLogic = () => {
-  const [gameState, setGameState] = useState<GameState>({
+  const [gameState, setGameState] = useState<ExtendedGameState>({
     currentLetter: getRandomLetter(),
     nextLetter: getRandomLetter(),
     currentLevel: 1,
@@ -19,6 +24,8 @@ export const useGameLogic = () => {
     isGameOver: false,
     usedWords: new Set(),
     bpm: LEVELS[0].bpm,
+    octopusPowerupActive: false,
+    showOctopusEffect: false,
   });
 
   useEffect(() => {
@@ -75,7 +82,23 @@ export const useGameLogic = () => {
     }
 
     const isDoubleLetter = gameState.currentLetter.length === 2;
-    const points = calculateScore(word.length, currentLevel, isDoubleLetter);
+    let points = calculateScore(word.length, currentLevel, isDoubleLetter);
+    
+    // Check for octopus activation
+    const isOctopus = word.toLowerCase() === 'octopus';
+    if (isOctopus && !gameState.octopusPowerupActive) {
+      setGameState(prev => ({
+        ...prev,
+        showOctopusEffect: true,
+        octopusPowerupActive: true,
+      }));
+    }
+
+    // Apply octopus multiplier if active
+    if (gameState.octopusPowerupActive) {
+      points *= 2;
+    }
+
     const newScore = gameState.score + points;
 
     const nextLevel = LEVELS.findIndex(
@@ -125,12 +148,19 @@ export const useGameLogic = () => {
     }
   }, [gameState.wordInput, validateWord]);
 
+  const handlePowerupComplete = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      showOctopusEffect: false,
+    }));
+  }, []);
+
   const restartGame = useCallback(() => {
     soundManager.stopAllMusic();
     soundManager.startLevelMusic(1);
   
     setGameState((prev) => {
-      const newState: GameState = {
+      const newState: ExtendedGameState = {
         currentLetter: getRandomLetter(),
         nextLetter: getRandomLetter(),
         currentLevel: 1,
@@ -139,8 +169,10 @@ export const useGameLogic = () => {
         timeRemaining: LEVELS[0].timeLimit,
         wordInput: '',
         isGameOver: false,
-        usedWords: new Set<string>(), // Explicitly specify Set<string>
+        usedWords: new Set<string>(),
         bpm: LEVELS[0].bpm,
+        octopusPowerupActive: false,
+        showOctopusEffect: false,
       };
   
       soundManager.startDrowningSound();
@@ -148,7 +180,6 @@ export const useGameLogic = () => {
       return newState;
     });
   }, []);
-  
 
   useEffect(() => {
     if (gameState.isGameOver) return;
@@ -186,5 +217,6 @@ export const useGameLogic = () => {
     handleInputChange,
     handleKeyPress,
     restartGame,
+    handlePowerupComplete,
   };
 };

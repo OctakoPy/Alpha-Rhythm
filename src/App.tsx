@@ -9,6 +9,7 @@ import { CurrentLetter } from './components/CurrentLetter';
 import { CoverPage } from './components/CoverPage';
 import { LevelDisplay } from './components/LevelDisplay';
 import { Credits } from './components/Credits';
+import { OctopusPowerup } from './components/effects/OctopusPowerup';
 import { useLevel } from './hooks/useLevel';
 import { useGameLogic } from './hooks/useGameLogic';
 import { loadDictionary } from './utils/dictionary';
@@ -23,6 +24,7 @@ export default function App() {
     handleInputChange,
     handleKeyPress,
     restartGame,
+    handlePowerupComplete
   } = useGameLogic();
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
@@ -80,6 +82,11 @@ export default function App() {
   return (
     <div className="min-h-screen relative">
       <LevelEffects level={currentLevel} />
+      
+      {/* Add Octopus Effect */}
+      {gameState.showOctopusEffect && (
+        <OctopusPowerup onComplete={handlePowerupComplete} />
+      )}
       
       {/* Header Layout */}
       <div className="absolute top-4 w-full px-4">
