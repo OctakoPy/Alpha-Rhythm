@@ -129,16 +129,13 @@ export const useGameLogic = () => {
   }, [gameState, handleGameOver]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value.toUpperCase();
-    if (newValue.length > gameState.wordInput.length) {
-      soundManager.playTyping();
-    }
-    
-    setGameState((prev) => ({
+    const value = e.target.value;
+    // Update state directly without additional processing
+    setGameState(prev => ({
       ...prev,
-      wordInput: newValue,
+      wordInput: value
     }));
-  }, [gameState.wordInput.length]);
+  }, []);
 
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ProgressBar } from './components/ProgressBar';
 import { GameOver } from './components/GameOver';
 import { LevelEffects } from './components/LevelEffects';
@@ -19,8 +19,8 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
-  // Add state to track viewport height for mobile
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const gameContainerRef = useRef<HTMLDivElement>(null);
   
   const {
     gameState,
@@ -32,21 +32,32 @@ export default function App() {
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
 
-  // Handle viewport height changes (e.g., when virtual keyboard appears)
+  // Handle keyboard visibility
   useEffect(() => {
-    const handleResize = () => {
-      setViewportHeight(window.innerHeight);
+    const handleVisibilityChange = () => {
+      // Check if an input element is focused
+      const isInputFocused = document.activeElement?.tagName === 'INPUT';
+      setIsKeyboardVisible(isInputFocused);
+      
+      // Force a reflow after keyboard appears/disappears
+      if (gameContainerRef.current) {
+        gameContainerRef.current.style.height = '100vh';
+        setTimeout(() => {
+          if (gameContainerRef.current) {
+            gameContainerRef.current.style.height = `${window.innerHeight}px`;
+          }
+        }, 50);
+      }
     };
 
-    window.addEventListener('resize', handleResize);
-    // Add event listener for iOS virtual keyboard
-    window.addEventListener('focusin', handleResize);
-    window.addEventListener('focusout', handleResize);
+    window.addEventListener('resize', handleVisibilityChange);
+    document.addEventListener('focusin', handleVisibilityChange);
+    document.addEventListener('focusout', handleVisibilityChange);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('focusin', handleResize);
-      window.removeEventListener('focusout', handleResize);
+      window.removeEventListener('resize', handleVisibilityChange);
+      document.removeEventListener('focusin', handleVisibilityChange);
+      document.removeEventListener('focusout', handleVisibilityChange);
     };
   }, []);
 
@@ -102,8 +113,12 @@ export default function App() {
 
   return (
     <div 
-      className="relative flex flex-col items-center justify-between overflow-hidden"
-      style={{ height: `${viewportHeight}px` }}
+      ref={gameContainerRef}
+      className="relative flex flex-col bg-blue-500 touch-none"
+      style={{
+        height: '100vh',
+        minHeight: '-webkit-fill-available'
+      }}
     >
       <LevelEffects level={currentLevel} />
       
@@ -111,8 +126,8 @@ export default function App() {
         <OctopusPowerup onComplete={handlePowerupComplete} />
       )}
       
-      {/* Header Layout - Compact on mobile */}
-      <div className="w-full px-2 sm:px-4 pt-2 sm:pt-4">
+      {/* Header - Fixed size */}
+      <div className="w-full px-2 py-2 bg-white/90 backdrop-blur-sm">
         <div className="flex justify-between items-center">
           <LevelDisplay level={currentLevel} />
           <GameHeader tempo={levelConfig.tempo} />
@@ -123,10 +138,10 @@ export default function App() {
         </div>
       </div>
 
-      {/* Game Content Container - Flexbox for dynamic spacing */}
-      <div className="flex-1 flex flex-col items-center justify-center w-full px-4 relative">
-        {/* Current Letter - Responsive positioning */}
-        <div className="transform -translate-y-1/4 sm:-translate-y-1/2">
+      {/* Main game area - Flexible height */}
+      <div className={`flex-1 flex flex-col justify-between ${isKeyboardVisible ? 'pt-2' : 'pt-8'}`}>
+        {/* Current Letter Container - Adjusts position based on keyboard */}
+        <div className={`flex-1 flex items-${isKeyboardVisible ? 'start' : 'center'} justify-center pb-4`}>
           <CurrentLetter 
             letter={gameState.currentLetter}
             nextLetter={gameState.nextLetter}
@@ -135,16 +150,16 @@ export default function App() {
           />
         </div>
 
-        {/* Bottom Game Controls - Adjust based on viewport height */}
-        <div className="absolute bottom-0 w-full flex flex-col items-center space-y-4 pb-4">
-          <div className="w-full max-w-sm sm:max-w-lg px-2">
+        {/* Bottom Controls - Fixed position */}
+        <div className="w-full px-4 pb-4 space-y-3">
+          <div className="w-full max-w-lg mx-auto">
             <ProgressBar
               timeRemaining={gameState.timeRemaining}
               totalTime={levelConfig.timeLimit}
             />
           </div>
           
-          <div className="w-full max-w-sm sm:max-w-lg px-2">
+          <div className="w-full max-w-lg mx-auto">
             <WordInput
               value={gameState.wordInput}
               onChange={handleInputChange}
