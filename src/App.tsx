@@ -1,25 +1,25 @@
-import { useEffect, useState } from 'react';
-import { ProgressBar } from './components/ProgressBar';
-import { GameOver } from './components/GameOver';
-import { LevelEffects } from './components/LevelEffects';
-import { GameHeader } from './components/GameHeader';
-import { GameStats } from './components/GameStats';
-import { WordInput } from './components/WordInput';
-import { CurrentLetter } from './components/CurrentLetter';
-import { CoverPage } from './components/CoverPage';
-import { LevelDisplay } from './components/LevelDisplay';
-import { Credits } from './components/Credits';
-import { OctopusPowerup } from './components/effects/OctopusPowerup';
-import { useLevel } from './hooks/useLevel';
-import { useGameLogic } from './hooks/useGameLogic';
-import { loadDictionary } from './utils/dictionary';
-import type { GameOverCondition } from './types/game';
+import { useEffect, useState } from "react";
+import { ProgressBar } from "./components/ProgressBar";
+import { GameOver } from "./components/GameOver";
+import { LevelEffects } from "./components/LevelEffects";
+import { GameHeader } from "./components/GameHeader";
+import { GameStats } from "./components/GameStats";
+import { WordInput } from "./components/WordInput";
+import { CurrentLetter } from "./components/CurrentLetter";
+import { CoverPage } from "./components/CoverPage";
+import { LevelDisplay } from "./components/LevelDisplay";
+import { Credits } from "./components/Credits";
+import { OctopusPowerup } from "./components/effects/OctopusPowerup";
+import { useLevel } from "./hooks/useLevel";
+import { useGameLogic } from "./hooks/useGameLogic";
+import { loadDictionary } from "./utils/dictionary";
+import type { GameOverCondition } from "./types/game";
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight); // Initial viewport height
 
   const {
     gameState,
@@ -38,7 +38,7 @@ export default function App() {
         setLoading(false);
         setShowCover(true);
       } catch (error) {
-        console.error('Failed to load assets:', error);
+        console.error("Failed to load assets:", error);
         setLoading(false);
         setError(true);
       }
@@ -47,22 +47,18 @@ export default function App() {
     initializeGame();
   }, []);
 
+  // Listen to viewport height changes (e.g., when the keyboard appears)
   useEffect(() => {
-    const handleResize = () => {
-      if (window.visualViewport) {
-        // Adjust height when keyboard is visible
-        setViewportHeight(window.visualViewport.height);
-      } else {
-        setViewportHeight(window.innerHeight); // Fallback for older browsers
-      }
+    const handleViewportResize = () => {
+      setViewportHeight(window.visualViewport?.height || window.innerHeight);
     };
 
-    window.visualViewport?.addEventListener('resize', handleResize);
-    window.addEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener("resize", handleViewportResize);
+    window.addEventListener("resize", handleViewportResize); // Fallback
 
     return () => {
-      window.visualViewport?.removeEventListener('resize', handleResize);
-      window.removeEventListener('resize', handleResize);
+      window.visualViewport?.removeEventListener("resize", handleViewportResize);
+      window.removeEventListener("resize", handleViewportResize);
     };
   }, []);
 
@@ -102,7 +98,7 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen bg-blue-500 relative"
+      className="game-container"
       style={{ height: `${viewportHeight}px` }} // Dynamically adjust height
     >
       <LevelEffects level={currentLevel} />
@@ -112,44 +108,33 @@ export default function App() {
       )}
 
       {/* Header */}
-      <div className="absolute top-4 w-full px-4">
-        <div className="flex justify-between items-center max-w-5xl mx-auto">
-          <LevelDisplay level={currentLevel} />
-          <GameHeader tempo={levelConfig.tempo} />
-          <GameStats
-            score={gameState.score}
-            highScore={gameState.highScore}
-          />
-        </div>
+      <div className="game-header">
+        <LevelDisplay level={currentLevel} />
+        <GameHeader tempo={levelConfig.tempo} />
+        <GameStats score={gameState.score} highScore={gameState.highScore} />
       </div>
 
       {/* Game Area */}
-      <div className="absolute inset-0 pt-20 pb-4 flex flex-col">
-        {/* Current Letter Section */}
-        <div className="flex-grow flex items-center justify-center md:transform md:-translate-y-12">
-          <CurrentLetter
-            letter={gameState.currentLetter}
-            nextLetter={gameState.nextLetter}
-            level={currentLevel}
-            minLength={levelConfig.minWordLength}
-          />
-        </div>
+      <div className="game-area">
+        <CurrentLetter
+          letter={gameState.currentLetter}
+          nextLetter={gameState.nextLetter}
+          level={currentLevel}
+          minLength={levelConfig.minWordLength}
+        />
 
-        {/* Controls Section */}
-        <div className="w-full max-w-2xl mx-auto px-4 space-y-4">
-          <ProgressBar
-            timeRemaining={gameState.timeRemaining}
-            totalTime={levelConfig.timeLimit}
-          />
+        <ProgressBar
+          timeRemaining={gameState.timeRemaining}
+          totalTime={levelConfig.timeLimit}
+        />
 
-          <WordInput
-            value={gameState.wordInput}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-            disabled={gameState.isGameOver}
-            currentLetter={gameState.currentLetter}
-          />
-        </div>
+        <WordInput
+          value={gameState.wordInput}
+          onChange={handleInputChange}
+          onKeyPress={handleKeyPress}
+          disabled={gameState.isGameOver}
+          currentLetter={gameState.currentLetter}
+        />
       </div>
 
       {gameState.isGameOver && (
