@@ -1,67 +1,50 @@
-import { useEffect, useState } from "react";
-import { ProgressBar } from "./components/ProgressBar";
-import { GameOver } from "./components/GameOver";
-import { LevelEffects } from "./components/LevelEffects";
-import { GameHeader } from "./components/GameHeader";
-import { GameStats } from "./components/GameStats";
-import { WordInput } from "./components/WordInput";
-import { CurrentLetter } from "./components/CurrentLetter";
-import { CoverPage } from "./components/CoverPage";
-import { LevelDisplay } from "./components/LevelDisplay";
-import { Credits } from "./components/Credits";
-import { OctopusPowerup } from "./components/effects/OctopusPowerup";
-import { useLevel } from "./hooks/useLevel";
-import { useGameLogic } from "./hooks/useGameLogic";
-import { loadDictionary } from "./utils/dictionary";
-import type { GameOverCondition } from "./types/game";
+import { useEffect, useState } from 'react';
+import { ProgressBar } from './components/ProgressBar';
+import { GameOver } from './components/GameOver';
+import { LevelEffects } from './components/LevelEffects';
+import { GameHeader } from './components/GameHeader';
+import { GameStats } from './components/GameStats';
+import { WordInput } from './components/WordInput';
+import { CurrentLetter } from './components/CurrentLetter';
+import { CoverPage } from './components/CoverPage';
+import { LevelDisplay } from './components/LevelDisplay';
+import { Credits } from './components/Credits';
+import { OctopusPowerup } from './components/effects/OctopusPowerup';
+import { useLevel } from './hooks/useLevel';
+import { useGameLogic } from './hooks/useGameLogic';
+import { loadDictionary } from './utils/dictionary';
+import type { GameOverCondition } from './types/game';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-
+  
   const {
     gameState,
     handleInputChange,
     handleKeyPress,
     restartGame,
-    handlePowerupComplete,
+    handlePowerupComplete
   } = useGameLogic();
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
 
   useEffect(() => {
-    const handleResize = () => {
-      // Check if visualViewport is available before using it
-      const visualViewport = window.visualViewport;
-  
-      // Check if the keyboard is visible by comparing viewport height
-      const keyboardVisible =
-        visualViewport &&
-        window.innerHeight - visualViewport.height > 100;
-  
-      setIsKeyboardVisible(!!keyboardVisible); // Ensure it's always true or false
-      setViewportHeight(
-        keyboardVisible ? visualViewport.height : window.innerHeight
-      );
-    };
-  
-    handleResize(); // Initial setup
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", handleResize);
-    }
-    window.addEventListener("resize", handleResize);
-  
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener("resize", handleResize);
+    const initializeGame = async () => {
+      try {
+        await loadDictionary();
+        setLoading(false);
+        setShowCover(true);
+      } catch (error) {
+        console.error('Failed to load assets:', error);
+        setLoading(false);
+        setError(true);
       }
-      window.removeEventListener("resize", handleResize);
     };
+
+    initializeGame();
   }, []);
-  
 
   const handleStartGame = () => {
     setShowCover(false);
@@ -98,63 +81,44 @@ export default function App() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-blue-500 relative"
-      style={{
-        height: `${viewportHeight}px`,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-      }}
-    >
+    <div className="min-h-screen bg-blue-500 relative">
       <LevelEffects level={currentLevel} />
-
+      
       {gameState.showOctopusEffect && (
         <OctopusPowerup onComplete={handlePowerupComplete} />
       )}
-
+      
       {/* Header */}
-      <div
-        className={`absolute top-4 w-full px-4 ${
-          isKeyboardVisible ? "hidden" : ""
-        }`}
-      >
+      <div className="absolute top-4 w-full px-4">
         <div className="flex justify-between items-center max-w-5xl mx-auto">
           <LevelDisplay level={currentLevel} />
           <GameHeader tempo={levelConfig.tempo} />
-          <GameStats
+          <GameStats 
             score={gameState.score}
             highScore={gameState.highScore}
           />
         </div>
       </div>
 
-      {/* Main Game Area */}
-      <div
-        className="flex-grow flex flex-col justify-center items-center"
-        style={{
-          paddingTop: isKeyboardVisible ? "10px" : "20px",
-          paddingBottom: isKeyboardVisible ? "10px" : "40px",
-        }}
-      >
-        <CurrentLetter
-          letter={gameState.currentLetter}
-          nextLetter={gameState.nextLetter}
-          level={currentLevel}
-          minLength={levelConfig.minWordLength}
-        />
+      {/* Game Area - Using absolute positioning for consistent layout */}
+      <div className="absolute inset-0 pt-20 pb-4 flex flex-col">
+        {/* Current Letter Section */}
+        <div className="flex-grow flex items-center justify-center md:transform md:-translate-y-12">
+          <CurrentLetter 
+            letter={gameState.currentLetter}
+            nextLetter={gameState.nextLetter}
+            level={currentLevel}
+            minLength={levelConfig.minWordLength}
+          />
+        </div>
 
-        <div
-          className="w-full max-w-2xl mx-auto px-4 space-y-4"
-          style={{
-            marginTop: isKeyboardVisible ? "0" : "20px",
-          }}
-        >
+        {/* Controls Section */}
+        <div className="w-full max-w-2xl mx-auto px-4 space-y-4">
           <ProgressBar
             timeRemaining={gameState.timeRemaining}
             totalTime={levelConfig.timeLimit}
           />
-
+          
           <WordInput
             value={gameState.wordInput}
             onChange={handleInputChange}
