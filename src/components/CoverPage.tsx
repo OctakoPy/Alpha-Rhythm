@@ -54,13 +54,26 @@ export const CoverPage: React.FC<CoverPageProps> = ({ highScore, onStartGame }) 
               <p>• Type words that start with the shown letter</p>
               <p>• Each word must be unique - no repeats!</p>
               <p>• Longer words give more points</p>
-              <p>• As you level up:</p>
+              <p>• There are 6 levels to beat. As you level up:</p>
               <ul className="list-disc pl-8">
                 <li>Required word length increases</li>
                 <li>Time limit decreases</li>
                 <li>Music gets faster</li>
               </ul>
-              <p>• Beat your high score!</p>
+              <p>• Ascend past level 6 and immortalise your score on the all-time leaderboard!!</p>
+              <p><i>This game was created by Octako, © 2024</i><br></br>
+                <i>
+                  Check out my projects{' '}
+                  <a
+                    href="https://octako-portfolio.pages.dev/"
+                    target="_blank"
+                    style={{ color: 'blue', textDecoration: 'underline' }}
+                  >
+                    here
+                  </a>
+                  !
+                </i>
+              </p>
             </div>
             <button
               onClick={() => setShowInstructions(false)}
