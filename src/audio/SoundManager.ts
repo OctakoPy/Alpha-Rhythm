@@ -2,7 +2,6 @@ class SoundManager {
   private static instance: SoundManager;
   private sounds: Map<string, HTMLAudioElement> = new Map();
   private currentBgm: HTMLAudioElement | null = null;
-  private drowningSound: HTMLAudioElement | null = null;
 
   private constructor() {
     this.initializeSounds();
@@ -23,6 +22,7 @@ class SoundManager {
     this.loadSound('newBest', '/new_personal_best.mp3', 0.4);
     this.loadSound('nextLevel', '/next_level.mp3', 0.4);
     this.loadSound('drowning', '/sonic_drowning.mp3', 0.05);
+    this.loadSound('octopusPowerup', '/octopus_powerup.mp3', 0.5);
 
     // Background music
     for (let i = 1; i <= 7; i++) {
@@ -37,6 +37,10 @@ class SoundManager {
       audio.loop = true;
     }
     this.sounds.set(key, audio);
+  }
+
+  public getSound(key: string): HTMLAudioElement | null {
+    return this.sounds.get(key) || null;
   }
 
   public playTyping() {
@@ -88,34 +92,6 @@ class SoundManager {
     }
   }
 
-  public startDrowningSound() {
-    const drowning = this.sounds.get('drowning');
-    if (drowning) {
-      drowning.currentTime = 0;
-      drowning.volume = 0.05; // Start very quiet
-      drowning.play().catch(() => {});
-      this.drowningSound = drowning;
-    }
-  }
-
-  public updateDrowningVolume(timeRemaining: number, totalTime: number) {
-    if (this.drowningSound) {
-      const timeRatio = timeRemaining / totalTime;
-      if (timeRatio <= 0.33) { // Red zone
-        // Gradually increase volume from 0.05 to 0.3
-        this.drowningSound.volume = 0.05 + (0.25 * (1 - (timeRatio / 0.33)));
-      } else {
-        this.drowningSound.volume = 0.05;
-      }
-    }
-  }
-
-  public stopDrowningSound() {
-    if (this.drowningSound) {
-      this.drowningSound.pause();
-      this.drowningSound.currentTime = 0;
-    }
-  }
 
   private stopBgm() {
     if (this.currentBgm) {
@@ -126,7 +102,6 @@ class SoundManager {
 
   public stopAllMusic() {
     this.stopBgm();
-    this.stopDrowningSound();
     this.sounds.forEach(sound => {
       sound.pause();
       sound.currentTime = 0;

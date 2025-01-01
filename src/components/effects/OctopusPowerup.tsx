@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { soundManager } from '../../audio/SoundManager';
 
 interface OctopusPowerupProps {
   onComplete: () => void;
@@ -129,17 +130,19 @@ export const OctopusPowerup: React.FC<OctopusPowerupProps> = ({ onComplete }) =>
     };
 
     // Play sound effect
-    const sound = new Audio('/octopus_powerup.mp3');
-    sound.volume = 0.5;
-    sound.play().catch(console.error);
-
-    // Start animation
-    animate();
-
-    // Cleanup on unmount
-    return () => {
-      sound.pause();
+    const sound = soundManager.getSound('octopusPowerup');
+    if (sound) {
       sound.currentTime = 0;
+      sound.play().catch(() => {});
+    }
+  
+    animate();
+  
+    return () => {
+      if (sound) {
+        sound.pause();
+        sound.currentTime = 0;
+      }
     };
   }, [onComplete]);
 

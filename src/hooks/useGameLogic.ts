@@ -115,7 +115,6 @@ export const useGameLogic = () => {
     }
 
     soundManager.playCorrect();
-    soundManager.stopDrowningSound();
     
     setGameState((prev) => ({
       ...prev,
@@ -127,7 +126,6 @@ export const useGameLogic = () => {
       timeRemaining: levelConfig.timeLimit,
     }));
 
-    soundManager.startDrowningSound();
   }, [gameState, handleGameOver]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,7 +173,6 @@ export const useGameLogic = () => {
         showOctopusEffect: false,
       };
   
-      soundManager.startDrowningSound();
   
       return newState;
     });
@@ -186,7 +183,6 @@ export const useGameLogic = () => {
 
     const timer = setInterval(() => {
       setGameState((prev) => {
-        soundManager.updateDrowningVolume(prev.timeRemaining, LEVELS[prev.currentLevel - 1].timeLimit);
 
         if (prev.timeRemaining <= 0) {
           if (prev.wordInput.trim()) {
