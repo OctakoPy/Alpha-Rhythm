@@ -6,6 +6,7 @@ import { getRandomLetter } from '../config/letters';
 import { getGameOverMessage } from '../utils/gameMessages';
 import { soundManager } from '../audio/SoundManager';
 import type { GameState, GameOverCondition } from '../types/game';
+import { useDeviceDetection } from '../hooks/useDeviceDetection';
 
 interface ExtendedGameState extends GameState {
   octopusPowerupActive: boolean;
@@ -128,14 +129,29 @@ export const useGameLogic = () => {
 
   }, [gameState, handleGameOver]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Update state directly without additional processing
-    setGameState(prev => ({
-      ...prev,
-      wordInput: value
-    }));
-  }, []);
+  const { isMobileKeyboard } = useDeviceDetection();
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+
+      if (isMobileKeyboard) {
+        // Logic for virtual keyboard
+        setGameState(prev => ({
+          ...prev,
+          wordInput: value,
+        }));
+      } else {
+        // Logic for physical keyboard
+        soundManager.playTyping();
+        setGameState(prev => ({
+          ...prev,
+          wordInput: value,
+        }));
+      }
+    },
+    [isMobileKeyboard] // Ensure dependency is correct
+  );
 
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {

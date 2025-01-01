@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { ProgressBar } from './components/ProgressBar';
 import { GameOver } from './components/GameOver';
 import { LevelEffects } from './components/LevelEffects';
@@ -19,8 +19,6 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const gameContainerRef = useRef<HTMLDivElement>(null);
   
   const {
     gameState,
@@ -31,35 +29,6 @@ export default function App() {
   } = useGameLogic();
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
-
-  // Handle keyboard visibility
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      // Check if an input element is focused
-      const isInputFocused = document.activeElement?.tagName === 'INPUT';
-      setIsKeyboardVisible(isInputFocused);
-      
-      // Force a reflow after keyboard appears/disappears
-      if (gameContainerRef.current) {
-        gameContainerRef.current.style.height = '100vh';
-        setTimeout(() => {
-          if (gameContainerRef.current) {
-            gameContainerRef.current.style.height = `${window.innerHeight}px`;
-          }
-        }, 50);
-      }
-    };
-
-    window.addEventListener('resize', handleVisibilityChange);
-    document.addEventListener('focusin', handleVisibilityChange);
-    document.addEventListener('focusout', handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener('resize', handleVisibilityChange);
-      document.removeEventListener('focusin', handleVisibilityChange);
-      document.removeEventListener('focusout', handleVisibilityChange);
-    };
-  }, []);
 
   useEffect(() => {
     const initializeGame = async () => {
@@ -112,23 +81,16 @@ export default function App() {
   }
 
   return (
-    <div 
-      ref={gameContainerRef}
-      className="relative flex flex-col bg-blue-500 touch-none"
-      style={{
-        height: '100vh',
-        minHeight: '-webkit-fill-available'
-      }}
-    >
+    <div className="min-h-screen bg-blue-500 relative">
       <LevelEffects level={currentLevel} />
       
       {gameState.showOctopusEffect && (
         <OctopusPowerup onComplete={handlePowerupComplete} />
       )}
       
-      {/* Header - Fixed size */}
-      <div className="w-full px-2 py-2 bg-white/90 backdrop-blur-sm">
-        <div className="flex justify-between items-center">
+      {/* Header */}
+      <div className="absolute top-4 w-full px-4">
+        <div className="flex justify-between items-center max-w-5xl mx-auto">
           <LevelDisplay level={currentLevel} />
           <GameHeader tempo={levelConfig.tempo} />
           <GameStats 
@@ -138,10 +100,10 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main game area - Flexible height */}
-      <div className={`flex-1 flex flex-col justify-between ${isKeyboardVisible ? 'pt-2' : 'pt-8'}`}>
-        {/* Current Letter Container - Adjusts position based on keyboard */}
-        <div className={`flex-1 flex items-${isKeyboardVisible ? 'start' : 'center'} justify-center pb-4`}>
+      {/* Game Area - Using absolute positioning for consistent layout */}
+      <div className="absolute inset-0 pt-20 pb-4 flex flex-col">
+        {/* Current Letter Section */}
+        <div className="flex-grow flex items-center justify-center md:transform md:-translate-y-12">
           <CurrentLetter 
             letter={gameState.currentLetter}
             nextLetter={gameState.nextLetter}
@@ -150,24 +112,20 @@ export default function App() {
           />
         </div>
 
-        {/* Bottom Controls - Fixed position */}
-        <div className="w-full px-4 pb-4 space-y-3">
-          <div className="w-full max-w-lg mx-auto">
-            <ProgressBar
-              timeRemaining={gameState.timeRemaining}
-              totalTime={levelConfig.timeLimit}
-            />
-          </div>
+        {/* Controls Section */}
+        <div className="w-full max-w-2xl mx-auto px-4 space-y-4">
+          <ProgressBar
+            timeRemaining={gameState.timeRemaining}
+            totalTime={levelConfig.timeLimit}
+          />
           
-          <div className="w-full max-w-lg mx-auto">
-            <WordInput
-              value={gameState.wordInput}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
-              disabled={gameState.isGameOver}
-              currentLetter={gameState.currentLetter}
-            />
-          </div>
+          <WordInput
+            value={gameState.wordInput}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            disabled={gameState.isGameOver}
+            currentLetter={gameState.currentLetter}
+          />
         </div>
       </div>
 
