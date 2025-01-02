@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ProgressBar } from './components/ProgressBar';
 import { GameOver } from './components/GameOver';
 import { LevelEffects } from './components/LevelEffects';
@@ -15,40 +15,52 @@ import { useGameLogic } from './hooks/useGameLogic';
 import { loadDictionary } from './utils/dictionary';
 import type { GameOverCondition } from './types/game';
 
-// Custom hook to handle keyboard visibility
-const useKeyboardVisibility = () => {
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+const useKeyboardAwareLayout = () => {
+  const [layout, setLayout] = useState({
+    isKeyboardVisible: false,
+    visibleHeight: window.innerHeight,
+    keyboardHeight: 0
+  });
 
   useEffect(() => {
-    // Only run on mobile devices
-    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-      const handleResize = () => {
-        // Viewport height without keyboard
-        const visualViewportHeight = window.visualViewport?.height || window.innerHeight;
-        // If the viewport height is significantly less than window height, keyboard is likely visible
-        const keyboardIsVisible = window.innerHeight - visualViewportHeight > 100;
-        
-        setIsKeyboardVisible(keyboardIsVisible);
-        if (keyboardIsVisible) {
-          setKeyboardHeight(window.innerHeight - visualViewportHeight);
-        } else {
-          setKeyboardHeight(0);
-        }
-      };
+    const handleViewportChange = () => {
+      if (!window.visualViewport) return;
 
-      // Listen to viewport changes
-      window.visualViewport?.addEventListener('resize', handleResize);
-      window.visualViewport?.addEventListener('scroll', handleResize);
+      // Get the visible height from visualViewport
+      const visibleHeight = window.visualViewport.height;
+      const isKeyboardVisible = window.innerHeight - visibleHeight > 100;
 
-      return () => {
-        window.visualViewport?.removeEventListener('resize', handleResize);
-        window.visualViewport?.removeEventListener('scroll', handleResize);
-      };
-    }
+      // Prevent any scrolling
+      document.body.style.height = `${visibleHeight}px`;
+      document.body.style.overflow = 'hidden';
+
+      // Update layout state
+      setLayout({
+        isKeyboardVisible,
+        visibleHeight,
+        keyboardHeight: window.innerHeight - visibleHeight
+      });
+
+      // Ensure viewport is at top
+      window.scrollTo(0, 0);
+    };
+
+    // Initial setup
+    handleViewportChange();
+
+    // Add event listeners
+    window.visualViewport?.addEventListener('resize', handleViewportChange);
+    window.visualViewport?.addEventListener('scroll', handleViewportChange);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleViewportChange);
+      window.visualViewport?.removeEventListener('scroll', handleViewportChange);
+      document.body.style.height = '';
+      document.body.style.overflow = '';
+    };
   }, []);
 
-  return { keyboardHeight, isKeyboardVisible };
+  return layout;
 };
 
 export default function App() {
@@ -56,7 +68,8 @@ export default function App() {
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
   
-  const { keyboardHeight, isKeyboardVisible } = useKeyboardVisibility();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { isKeyboardVisible, visibleHeight } = useKeyboardAwareLayout();
 
   const {
     gameState,
@@ -91,7 +104,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div style={{ height: visibleHeight }} className="flex items-center justify-center">
         <h1 className="text-2xl font-bold">Loading assets...</h1>
         <Credits />
       </div>
@@ -100,7 +113,7 @@ export default function App() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div style={{ height: visibleHeight }} className="flex items-center justify-center">
         <h1 className="text-2xl font-bold text-red-500">
           Sorry! AlphaRhythm is currently down!
         </h1>
@@ -111,18 +124,20 @@ export default function App() {
 
   if (showCover) {
     return (
-      <>
+      <div style={{ height: visibleHeight }}>
         <CoverPage highScore={gameState.highScore} onStartGame={handleStartGame} />
         <Credits />
-      </>
+      </div>
     );
   }
 
   return (
     <div 
-      className="min-h-screen bg-blue-500 relative"
-      style={{
-        height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight}px)` : '100vh',
+      ref={containerRef}
+      className="bg-blue-500 relative flex flex-col overflow-hidden"
+      style={{ 
+        height: visibleHeight,
+        transition: 'height 0.3s ease'
       }}
     >
       <LevelEffects level={currentLevel} />
@@ -131,8 +146,11 @@ export default function App() {
         <OctopusPowerup onComplete={handlePowerupComplete} />
       )}
       
-      {/* Header - Adjust spacing when keyboard is visible */}
-      <div className={`absolute top-${isKeyboardVisible ? '2' : '4'} w-full px-4`}>
+      {/* Header section with dynamic spacing */}
+      <div className={`
+        ${isKeyboardVisible ? 'py-1' : 'py-4'}
+        px-4 transition-all duration-300
+      `}>
         <div className="flex justify-between items-center max-w-5xl mx-auto">
           <LevelDisplay level={currentLevel} />
           <GameHeader tempo={levelConfig.tempo} />
@@ -143,20 +161,14 @@ export default function App() {
         </div>
       </div>
 
-      {/* Game Area - Adjust spacing when keyboard is visible */}
-      <div 
-        className="absolute inset-0 flex flex-col"
-        style={{
-          paddingTop: isKeyboardVisible ? '3rem' : '5rem',
-          paddingBottom: '1rem'
-        }}
-      >
-        {/* Current Letter Section - Adjust vertical positioning */}
-        <div 
-          className={`flex-grow flex items-center justify-center ${
-            isKeyboardVisible ? '' : 'md:transform md:-translate-y-12'
-          }`}
-        >
+      {/* Game Area with flexible spacing */}
+      <div className="flex-1 flex flex-col justify-between">
+        {/* Current Letter Section with dynamic sizing */}
+        <div className={`
+          flex-1 flex items-center justify-center
+          ${isKeyboardVisible ? 'scale-75' : 'scale-100'}
+          transition-transform duration-300
+        `}>
           <CurrentLetter 
             letter={gameState.currentLetter}
             nextLetter={gameState.nextLetter}
@@ -166,19 +178,25 @@ export default function App() {
         </div>
 
         {/* Controls Section */}
-        <div className="w-full max-w-2xl mx-auto px-4 space-y-4">
+        <div className={`
+          w-full max-w-2xl mx-auto px-4
+          ${isKeyboardVisible ? 'space-y-2' : 'space-y-4'}
+          transition-all duration-300
+        `}>
           <ProgressBar
             timeRemaining={gameState.timeRemaining}
             totalTime={levelConfig.timeLimit}
           />
           
-          <WordInput
-            value={gameState.wordInput}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-            disabled={gameState.isGameOver}
-            currentLetter={gameState.currentLetter}
-          />
+          <div className={`mb-${isKeyboardVisible ? '2' : '4'}`}>
+            <WordInput
+              value={gameState.wordInput}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              disabled={gameState.isGameOver}
+              currentLetter={gameState.currentLetter}
+            />
+          </div>
         </div>
       </div>
 
