@@ -96,7 +96,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-500 relative">
+    <div className="min-h-screen bg-blue-500 relative overflow-hidden">
       {/* Fixed container for background effects */}
       <div className="fixed inset-0 pointer-events-none">
         <LevelEffects level={currentLevel} />
