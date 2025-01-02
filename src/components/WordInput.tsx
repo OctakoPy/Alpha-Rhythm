@@ -6,6 +6,7 @@ interface WordInputProps {
   onKeyPress: (e: React.KeyboardEvent) => void;
   disabled: boolean;
   currentLetter: string;
+  style?: React.CSSProperties; // Add the style prop
 }
 
 export const WordInput: React.FC<WordInputProps> = ({
@@ -14,6 +15,7 @@ export const WordInput: React.FC<WordInputProps> = ({
   onKeyPress,
   disabled,
   currentLetter,
+  style, // Accept the style prop
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -46,9 +48,10 @@ export const WordInput: React.FC<WordInputProps> = ({
       onKeyPress={onKeyPress}
       className="w-full text-xl p-3 bg-white/80 backdrop-blur-sm border-2 border-blue-300 rounded-lg 
                 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none shadow-lg
-                touch-manipulation" // Add touch-action optimization
+                touch-manipulation"
       style={{
         WebkitTapHighlightColor: 'transparent', // Remove tap highlight on iOS
+        ...style, // Merge the external style
       }}
       placeholder={`Type a word starting with ${currentLetter}...`}
       disabled={disabled}

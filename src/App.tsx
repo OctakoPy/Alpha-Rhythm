@@ -164,13 +164,14 @@ export default function App() {
 
         {/* Game Area */}
         <div
-            className="absolute inset-0 flex flex-col"
-            style={{
-              height: isKeyboardVisible ? `${viewportHeight - keyboardHeight}px` : '100%',
-              paddingTop: isKeyboardVisible ? '20rem' : '5rem',
-              paddingBottom: isKeyboardVisible ? '20rem' : '2rem',  // Added more space
-              minHeight: '100vh',  // Ensure the container takes up at least the full viewport height
-            }}
+          className="absolute inset-0 flex flex-col"
+          style={{
+            height: isKeyboardVisible ? `${viewportHeight - keyboardHeight}px` : '100%',
+            paddingTop: isKeyboardVisible ? '3rem' : '5rem',
+            paddingBottom: isKeyboardVisible ? 'env(safe-area-inset-bottom)' : '1rem', // Dynamic padding for safe areas
+            minHeight: '100vh', // Ensure the container fills the full height
+            boxSizing: 'border-box', // Include padding in height calculations
+          }}
           >
           {/* Current Letter Section */}
           <div
@@ -189,6 +190,7 @@ export default function App() {
           </div>
 
           {/* Controls Section */}
+          {/* WordInput Section */}
           <div className="w-full max-w-2xl mx-auto px-4 space-y-2">
             <ProgressBar
               timeRemaining={gameState.timeRemaining}
@@ -201,6 +203,9 @@ export default function App() {
               onKeyPress={handleKeyPress}
               disabled={gameState.isGameOver}
               currentLetter={gameState.currentLetter}
+              style={{
+                marginBottom: `calc(env(safe-area-inset-bottom) + 10px)`, // Add spacing for the virtual keyboard
+              }}
             />
           </div>
         </div>
