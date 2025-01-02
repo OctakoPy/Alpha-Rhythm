@@ -15,11 +15,49 @@ import { useGameLogic } from './hooks/useGameLogic';
 import { loadDictionary } from './utils/dictionary';
 import type { GameOverCondition } from './types/game';
 
+// Custom hook to handle keyboard visibility
+const useKeyboardVisibility = () => {
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    // Only run on mobile devices
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      const handleResize = () => {
+        // Viewport height without keyboard
+        const visualViewportHeight = window.visualViewport?.height || window.innerHeight;
+        // If the viewport height is significantly less than window height, keyboard is likely visible
+        const keyboardIsVisible = window.innerHeight - visualViewportHeight > 100;
+        
+        setIsKeyboardVisible(keyboardIsVisible);
+        if (keyboardIsVisible) {
+          setKeyboardHeight(window.innerHeight - visualViewportHeight);
+        } else {
+          setKeyboardHeight(0);
+        }
+      };
+
+      // Listen to viewport changes
+      window.visualViewport?.addEventListener('resize', handleResize);
+      window.visualViewport?.addEventListener('scroll', handleResize);
+
+      return () => {
+        window.visualViewport?.removeEventListener('resize', handleResize);
+        window.visualViewport?.removeEventListener('scroll', handleResize);
+      };
+    }
+  }, []);
+
+  return { keyboardHeight, isKeyboardVisible };
+};
+
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
   
+  const { keyboardHeight, isKeyboardVisible } = useKeyboardVisibility();
+
   const {
     gameState,
     handleInputChange,
@@ -81,15 +119,20 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-500 relative">
+    <div 
+      className="min-h-screen bg-blue-500 relative"
+      style={{
+        height: isKeyboardVisible ? `calc(100vh - ${keyboardHeight}px)` : '100vh',
+      }}
+    >
       <LevelEffects level={currentLevel} />
       
       {gameState.showOctopusEffect && (
         <OctopusPowerup onComplete={handlePowerupComplete} />
       )}
       
-      {/* Header */}
-      <div className="absolute top-4 w-full px-4">
+      {/* Header - Adjust spacing when keyboard is visible */}
+      <div className={`absolute top-${isKeyboardVisible ? '2' : '4'} w-full px-4`}>
         <div className="flex justify-between items-center max-w-5xl mx-auto">
           <LevelDisplay level={currentLevel} />
           <GameHeader tempo={levelConfig.tempo} />
@@ -100,10 +143,20 @@ export default function App() {
         </div>
       </div>
 
-      {/* Game Area - Using absolute positioning for consistent layout */}
-      <div className="absolute inset-0 pt-20 pb-4 flex flex-col">
-        {/* Current Letter Section */}
-        <div className="flex-grow flex items-center justify-center md:transform md:-translate-y-12">
+      {/* Game Area - Adjust spacing when keyboard is visible */}
+      <div 
+        className="absolute inset-0 flex flex-col"
+        style={{
+          paddingTop: isKeyboardVisible ? '3rem' : '5rem',
+          paddingBottom: '1rem'
+        }}
+      >
+        {/* Current Letter Section - Adjust vertical positioning */}
+        <div 
+          className={`flex-grow flex items-center justify-center ${
+            isKeyboardVisible ? '' : 'md:transform md:-translate-y-12'
+          }`}
+        >
           <CurrentLetter 
             letter={gameState.currentLetter}
             nextLetter={gameState.nextLetter}
