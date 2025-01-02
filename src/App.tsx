@@ -43,15 +43,14 @@ export default function App() {
       document.body.style.height = '';
     };
 
-    // Disable scrolling only during gameplay
     if (!showCover && !gameState.isGameOver) {
-      disableScroll();
+      disableScroll(); // Disable scrolling during gameplay
     } else {
-      enableScroll();
+      enableScroll(); // Enable scrolling when not in gameplay
     }
 
     return () => {
-      enableScroll(); // Cleanup scrolling on unmount
+      enableScroll(); // Cleanup on unmount
     };
   }, [showCover, gameState.isGameOver]);
 
@@ -119,7 +118,13 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-500 relative overflow-hidden">
+    <div
+      className="min-h-screen bg-blue-500 relative"
+      style={{
+        height: isKeyboardVisible ? `${viewportHeight}px` : '100vh',
+        overflow: 'hidden',
+      }}
+    >
       {/* Fixed container for background effects */}
       <div className="fixed inset-0 pointer-events-none">
         <LevelEffects level={currentLevel} />
