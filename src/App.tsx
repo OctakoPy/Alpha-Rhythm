@@ -123,7 +123,6 @@ export default function App() {
     return (
       <>
         <CoverPage highScore={gameState.highScore} onStartGame={handleStartGame} />
-        <Credits />
       </>
     );
   }
