@@ -27,10 +27,33 @@ export default function App() {
     handleInputChange,
     handleKeyPress,
     restartGame,
-    handlePowerupComplete
+    handlePowerupComplete,
   } = useGameLogic();
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
+
+  useEffect(() => {
+    const disableScroll = () => {
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = '100%';
+    };
+
+    const enableScroll = () => {
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+    };
+
+    // Disable scrolling only during gameplay
+    if (!showCover && !gameState.isGameOver) {
+      disableScroll();
+    } else {
+      enableScroll();
+    }
+
+    return () => {
+      enableScroll(); // Cleanup scrolling on unmount
+    };
+  }, [showCover, gameState.isGameOver]);
 
   useEffect(() => {
     const initializeGame = async () => {
@@ -68,7 +91,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center overflow-hidden">
         <h1 className="text-2xl font-bold">Loading assets...</h1>
         <Credits />
       </div>
@@ -77,7 +100,7 @@ export default function App() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center overflow-hidden">
         <h1 className="text-2xl font-bold text-red-500">
           Sorry! AlphaRhythm is currently down!
         </h1>
@@ -107,10 +130,10 @@ export default function App() {
 
       {/* Main game container with keyboard-aware layout */}
       <div
-        className="relative min-h-screen"
+        className="fixed inset-0"
         style={{
           height: isKeyboardVisible ? `${viewportHeight}px` : '100vh',
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}
       >
         {/* Header section */}
@@ -122,10 +145,7 @@ export default function App() {
           <div className="flex justify-between items-center max-w-5xl mx-auto">
             <LevelDisplay level={currentLevel} />
             <GameHeader tempo={levelConfig.tempo} />
-            <GameStats
-              score={gameState.score}
-              highScore={gameState.highScore}
-            />
+            <GameStats score={gameState.score} highScore={gameState.highScore} />
           </div>
         </div>
 
@@ -143,7 +163,7 @@ export default function App() {
             className="flex-grow flex items-center justify-center"
             style={{
               transform: isKeyboardVisible ? 'scale(0.8)' : 'none',
-              transition: 'transform 0.2s ease'
+              transition: 'transform 0.2s ease',
             }}
           >
             <CurrentLetter
@@ -182,7 +202,6 @@ export default function App() {
             setShowCover={setShowCover}
           />
         )}
-
       </div>
     </div>
   );
