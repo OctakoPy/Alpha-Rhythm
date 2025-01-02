@@ -27,39 +27,10 @@ export default function App() {
     handleInputChange,
     handleKeyPress,
     restartGame,
-    handlePowerupComplete,
+    handlePowerupComplete
   } = useGameLogic();
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
-
-  useEffect(() => {
-    if (!showCover && !gameState.isGameOver) {
-      // Disable scrolling
-      const preventScrolling = (e: TouchEvent) => {
-        e.preventDefault();
-      };
-      document.ontouchmove = preventScrolling;
-  
-      // Scroll back to top when input field is focused
-      const inputFocusHandler = () => {
-        window.scrollTo(0, 0);
-        document.body.scrollTop = 0;
-      };
-      const inputs = document.querySelectorAll('input');
-      inputs.forEach(input => {
-        input.addEventListener('focus', inputFocusHandler);
-      });
-  
-      return () => {
-        // Cleanup event listeners
-        document.ontouchmove = null;
-        inputs.forEach(input => {
-          input.removeEventListener('focus', inputFocusHandler);
-        });
-      };
-    }
-  }, [showCover, gameState.isGameOver]);
-  
 
   useEffect(() => {
     const initializeGame = async () => {
@@ -81,6 +52,39 @@ export default function App() {
     setShowCover(false);
     restartGame();
   };
+
+  useEffect(() => {
+    const preventScrolling = (e: TouchEvent) => {
+      if (!showCover && !gameState.isGameOver) {
+        e.preventDefault();
+      }
+    };
+
+    const inputFocusHandler = () => {
+      // Ensure the page is not scrolled when input is focused
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+    };
+
+    if (!showCover && !gameState.isGameOver) {
+      // Disable scrolling during gameplay
+      document.addEventListener('touchmove', preventScrolling, { passive: false });
+
+      // Prevent scrolling on input focus
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.addEventListener('focus', inputFocusHandler);
+      });
+
+      return () => {
+        // Cleanup event listeners on unmount
+        document.removeEventListener('touchmove', preventScrolling);
+        inputs.forEach(input => {
+          input.removeEventListener('focus', inputFocusHandler);
+        });
+      };
+    }
+  }, [showCover, gameState.isGameOver]);
 
   const Credits = () => (
     <div
@@ -125,13 +129,7 @@ export default function App() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-blue-500 relative"
-      style={{
-        height: isKeyboardVisible ? `${viewportHeight}px` : '100vh',
-        overflow: 'hidden',
-      }}
-    >
+    <div className="min-h-screen bg-blue-500 relative overflow-hidden">
       {/* Fixed container for background effects */}
       <div className="fixed inset-0 pointer-events-none">
         <LevelEffects level={currentLevel} />
@@ -145,7 +143,7 @@ export default function App() {
         className="fixed inset-0"
         style={{
           height: isKeyboardVisible ? `${viewportHeight}px` : '100vh',
-          overflow: 'hidden',
+          overflow: 'hidden'
         }}
       >
         {/* Header section */}
@@ -157,7 +155,10 @@ export default function App() {
           <div className="flex justify-between items-center max-w-5xl mx-auto">
             <LevelDisplay level={currentLevel} />
             <GameHeader tempo={levelConfig.tempo} />
-            <GameStats score={gameState.score} highScore={gameState.highScore} />
+            <GameStats
+              score={gameState.score}
+              highScore={gameState.highScore}
+            />
           </div>
         </div>
 
@@ -175,7 +176,7 @@ export default function App() {
             className="flex-grow flex items-center justify-center"
             style={{
               transform: isKeyboardVisible ? 'scale(0.8)' : 'none',
-              transition: 'transform 0.2s ease',
+              transition: 'transform 0.2s ease'
             }}
           >
             <CurrentLetter
@@ -214,6 +215,7 @@ export default function App() {
             setShowCover={setShowCover}
           />
         )}
+
       </div>
     </div>
   );
