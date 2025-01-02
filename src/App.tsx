@@ -36,42 +36,47 @@ export default function App() {
     const disableScroll = () => {
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
+      document.body.style.top = '0';
       document.body.style.width = '100%';
-      document.body.style.height = '100%';
+      document.body.style.height = '100vh'; // Lock the body height to the full viewport height
     };
 
     const enableScroll = () => {
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.width = '';
-      document.body.style.height = '';
+      document.body.style.height = ''; // Reset the height when scrolling is enabled again
     };
 
     if (!showCover && !gameState.isGameOver) {
-      disableScroll(); // Disable scrolling during gameplay
+      disableScroll(); // Disable scroll during gameplay
     } else {
-      enableScroll(); // Enable scrolling when not in gameplay
+      enableScroll(); // Enable scroll during cover or game over
     }
 
     return () => {
-      enableScroll(); // Re-enable scrolling when component unmounts
+      enableScroll(); // Clean up and re-enable scroll when component unmounts or game ends
     };
   }, [showCover, gameState.isGameOver]);
 
   useEffect(() => {
-    const handleViewportResize = () => {
-      const viewport = window.visualViewport;
-      if (viewport) {
-        document.body.style.height = `${viewport.height}px`; // Lock height dynamically
+    const handleResize = () => {
+      if (isKeyboardVisible) {
+        document.body.style.height = `${viewportHeight}px`; // Dynamically adjust body height based on viewport height
+      } else {
+        document.body.style.height = ''; // Reset height when keyboard isn't visible
       }
     };
 
-    window.visualViewport?.addEventListener('resize', handleViewportResize);
+    window.addEventListener('resize', handleResize);
+
+    // Initial call to set body height on mount
+    handleResize();
 
     return () => {
-      window.visualViewport?.removeEventListener('resize', handleViewportResize);
+      window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [isKeyboardVisible, viewportHeight]);
 
   useEffect(() => {
     const initializeGame = async () => {
