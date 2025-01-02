@@ -3,10 +3,12 @@ import React from 'react';
 interface ProgressBarProps {
   timeRemaining: number;
   totalTime: number;
+  style?: React.CSSProperties; // Add this to accept a style prop
 }
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({ timeRemaining, totalTime }) => {
+export const ProgressBar: React.FC<ProgressBarProps> = ({ timeRemaining, totalTime, style }) => {
   const progress = (timeRemaining / totalTime) * 100;
+
   const getColor = () => {
     if (progress > 66) return 'bg-green-500';
     if (progress > 33) return 'bg-yellow-500';
@@ -17,7 +19,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ timeRemaining, totalTi
   const isFlashing = timeRemaining <= 1;
 
   return (
-    <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+    <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden" style={style}>
       <div
         className={`h-full transition-all duration-200 ${getColor()} ${
           isPulsing ? 'animate-pulse' : ''

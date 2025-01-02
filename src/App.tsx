@@ -194,6 +194,10 @@ export default function App() {
             <ProgressBar
               timeRemaining={gameState.timeRemaining}
               totalTime={levelConfig.timeLimit}
+              style={{
+                marginBottom: '1.5rem', // Adjust this value to move it upward
+                transform: 'translateY(-10px)', // Optional for finer tuning
+              }}
             />
 
             <WordInput
