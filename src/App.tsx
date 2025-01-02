@@ -204,7 +204,9 @@ export default function App() {
               disabled={gameState.isGameOver}
               currentLetter={gameState.currentLetter}
               style={{
-                marginBottom: `calc(env(safe-area-inset-bottom) + 10px)`, // Add spacing for the virtual keyboard
+                marginBottom: `calc(env(safe-area-inset-bottom) + 50px)`, // Increase the value for more space
+                transform: 'translateY(-50px)', // Temporarily move it up for testing
+                backgroundColor: '#f8f9fa', // Optional: Differentiate visually for testing
               }}
             />
           </div>
