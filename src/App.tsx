@@ -167,8 +167,8 @@ export default function App() {
             className="absolute inset-0 flex flex-col"
             style={{
               height: isKeyboardVisible ? `${viewportHeight - keyboardHeight}px` : '100%',
-              paddingTop: isKeyboardVisible ? '3rem' : '5rem',
-              paddingBottom: isKeyboardVisible ? '6rem' : '2rem',  // Added more space
+              paddingTop: isKeyboardVisible ? '20rem' : '5rem',
+              paddingBottom: isKeyboardVisible ? '20rem' : '2rem',  // Added more space
               minHeight: '100vh',  // Ensure the container takes up at least the full viewport height
             }}
           >
