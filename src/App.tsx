@@ -27,7 +27,7 @@ export default function App() {
     handleInputChange,
     handleKeyPress,
     restartGame,
-    handlePowerupComplete
+    handlePowerupComplete,
   } = useGameLogic();
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
@@ -107,10 +107,11 @@ export default function App() {
 
       {/* Main game container with keyboard-aware layout */}
       <div
-        className="relative min-h-screen"
+        className="relative"
         style={{
-          height: isKeyboardVisible ? `${viewportHeight}px` : '100vh',
-          overflow: 'hidden'
+          height: isKeyboardVisible ? `${viewportHeight - keyboardHeight}px` : '100vh',
+          overflow: 'hidden',
+          transition: 'height 0.2s ease',
         }}
       >
         {/* Header section */}
@@ -122,10 +123,7 @@ export default function App() {
           <div className="flex justify-between items-center max-w-5xl mx-auto">
             <LevelDisplay level={currentLevel} />
             <GameHeader tempo={levelConfig.tempo} />
-            <GameStats
-              score={gameState.score}
-              highScore={gameState.highScore}
-            />
+            <GameStats score={gameState.score} highScore={gameState.highScore} />
           </div>
         </div>
 
@@ -143,7 +141,7 @@ export default function App() {
             className="flex-grow flex items-center justify-center"
             style={{
               transform: isKeyboardVisible ? 'scale(0.8)' : 'none',
-              transition: 'transform 0.2s ease'
+              transition: 'transform 0.2s ease',
             }}
           >
             <CurrentLetter
@@ -182,8 +180,6 @@ export default function App() {
             setShowCover={setShowCover}
           />
         )}
-
-        <Credits />
       </div>
     </div>
   );
