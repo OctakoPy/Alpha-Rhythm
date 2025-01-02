@@ -205,7 +205,7 @@ export default function App() {
               currentLetter={gameState.currentLetter}
               style={{
                 marginBottom: `calc(env(safe-area-inset-bottom) + 25px)`, // Increase the value for more space
-                transform: 'translateY(-50px)', // Temporarily move it up for testing
+                transform: 'translateY(-25px)', // Temporarily move it up for testing
                 backgroundColor: '#f8f9fa', // Optional: Differentiate visually for testing
               }}
             />
