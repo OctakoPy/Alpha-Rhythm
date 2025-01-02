@@ -164,13 +164,14 @@ export default function App() {
 
         {/* Game Area */}
         <div
-          className="absolute inset-0 flex flex-col"
-          style={{
-            height: isKeyboardVisible ? `${viewportHeight - keyboardHeight}px` : '100%',
-            paddingTop: isKeyboardVisible ? '3rem' : '5rem',
-            paddingBottom: isKeyboardVisible ? '20rem' : '1rem',
-          }}
-        >
+            className="absolute inset-0 flex flex-col"
+            style={{
+              height: isKeyboardVisible ? `${viewportHeight - keyboardHeight}px` : '100%',
+              paddingTop: isKeyboardVisible ? '3rem' : '5rem',
+              paddingBottom: isKeyboardVisible ? '3rem' : '2rem',  // Added more space
+              minHeight: '100vh',  // Ensure the container takes up at least the full viewport height
+            }}
+          >
           {/* Current Letter Section */}
           <div
             className="flex-grow flex items-center justify-center"
