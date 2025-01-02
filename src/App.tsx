@@ -168,7 +168,7 @@ export default function App() {
           style={{
             height: isKeyboardVisible ? `${viewportHeight - keyboardHeight}px` : '100%',
             paddingTop: isKeyboardVisible ? '3rem' : '5rem',
-            paddingBottom: isKeyboardVisible ? '3rem' : '1rem',
+            paddingBottom: isKeyboardVisible ? '20rem' : '1rem',
           }}
         >
           {/* Current Letter Section */}
