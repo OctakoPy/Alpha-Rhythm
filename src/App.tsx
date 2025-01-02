@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { ProgressBar } from './components/ProgressBar';
 import { GameOver } from './components/GameOver';
 import { LevelEffects } from './components/LevelEffects';
@@ -12,65 +12,17 @@ import { Credits } from './components/Credits';
 import { OctopusPowerup } from './components/effects/OctopusPowerup';
 import { useLevel } from './hooks/useLevel';
 import { useGameLogic } from './hooks/useGameLogic';
+import { useVirtualKeyboard } from './hooks/useVirtualKeyboard';
 import { loadDictionary } from './utils/dictionary';
 import type { GameOverCondition } from './types/game';
-
-const useKeyboardAwareLayout = () => {
-  const [layout, setLayout] = useState({
-    isKeyboardVisible: false,
-    visibleHeight: window.innerHeight,
-    keyboardHeight: 0
-  });
-
-  useEffect(() => {
-    const handleViewportChange = () => {
-      if (!window.visualViewport) return;
-
-      // Get the visible height from visualViewport
-      const visibleHeight = window.visualViewport.height;
-      const isKeyboardVisible = window.innerHeight - visibleHeight > 100;
-
-      // Prevent any scrolling
-      document.body.style.height = `${visibleHeight}px`;
-      document.body.style.overflow = 'hidden';
-
-      // Update layout state
-      setLayout({
-        isKeyboardVisible,
-        visibleHeight,
-        keyboardHeight: window.innerHeight - visibleHeight
-      });
-
-      // Ensure viewport is at top
-      window.scrollTo(0, 0);
-    };
-
-    // Initial setup
-    handleViewportChange();
-
-    // Add event listeners
-    window.visualViewport?.addEventListener('resize', handleViewportChange);
-    window.visualViewport?.addEventListener('scroll', handleViewportChange);
-
-    return () => {
-      window.visualViewport?.removeEventListener('resize', handleViewportChange);
-      window.visualViewport?.removeEventListener('scroll', handleViewportChange);
-      document.body.style.height = '';
-      document.body.style.overflow = '';
-    };
-  }, []);
-
-  return layout;
-};
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
   
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { isKeyboardVisible, visibleHeight } = useKeyboardAwareLayout();
-
+  const { isKeyboardVisible, viewportHeight, keyboardHeight } = useVirtualKeyboard();
+  
   const {
     gameState,
     handleInputChange,
@@ -104,91 +56,99 @@ export default function App() {
 
   if (loading) {
     return (
-      <div style={{ height: visibleHeight }} className="flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <h1 className="text-2xl font-bold">Loading assets...</h1>
-        <Credits />
+        <Credits isKeyboardVisible={isKeyboardVisible} />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ height: visibleHeight }} className="flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <h1 className="text-2xl font-bold text-red-500">
           Sorry! AlphaRhythm is currently down!
         </h1>
-        <Credits />
+        <Credits isKeyboardVisible={isKeyboardVisible} />
       </div>
     );
   }
 
   if (showCover) {
     return (
-      <div style={{ height: visibleHeight }}>
+      <>
         <CoverPage highScore={gameState.highScore} onStartGame={handleStartGame} />
-        <Credits />
-      </div>
+        <Credits isKeyboardVisible={isKeyboardVisible} />
+      </>
     );
   }
 
   return (
-    <div 
-      ref={containerRef}
-      className="bg-blue-500 relative flex flex-col overflow-hidden"
-      style={{ 
-        height: visibleHeight,
-        transition: 'height 0.3s ease'
-      }}
-    >
-      <LevelEffects level={currentLevel} />
-      
-      {gameState.showOctopusEffect && (
-        <OctopusPowerup onComplete={handlePowerupComplete} />
-      )}
-      
-      {/* Header section with dynamic spacing */}
-      <div className={`
-        ${isKeyboardVisible ? 'py-1' : 'py-4'}
-        px-4 transition-all duration-300
-      `}>
-        <div className="flex justify-between items-center max-w-5xl mx-auto">
-          <LevelDisplay level={currentLevel} />
-          <GameHeader tempo={levelConfig.tempo} />
-          <GameStats 
-            score={gameState.score}
-            highScore={gameState.highScore}
-          />
-        </div>
+    <div className="min-h-screen bg-blue-500 relative">
+      {/* Fixed container for background effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <LevelEffects level={currentLevel} />
+        {gameState.showOctopusEffect && (
+          <OctopusPowerup onComplete={handlePowerupComplete} />
+        )}
       </div>
 
-      {/* Game Area with flexible spacing */}
-      <div className="flex-1 flex flex-col justify-between">
-        {/* Current Letter Section with dynamic sizing */}
-        <div className={`
-          flex-1 flex items-center justify-center
-          ${isKeyboardVisible ? 'scale-75' : 'scale-100'}
-          transition-transform duration-300
-        `}>
-          <CurrentLetter 
-            letter={gameState.currentLetter}
-            nextLetter={gameState.nextLetter}
-            level={currentLevel}
-            minLength={levelConfig.minWordLength}
-          />
+      {/* Main game container with keyboard-aware layout */}
+      <div 
+        className="relative min-h-screen"
+        style={{
+          height: isKeyboardVisible ? `${viewportHeight}px` : '100vh',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Header section */}
+        <div 
+          className={`absolute w-full px-4 transition-all duration-200 ${
+            isKeyboardVisible ? 'top-2' : 'top-4'
+          }`}
+        >
+          <div className="flex justify-between items-center max-w-5xl mx-auto">
+            <LevelDisplay level={currentLevel} />
+            <GameHeader tempo={levelConfig.tempo} />
+            <GameStats 
+              score={gameState.score}
+              highScore={gameState.highScore}
+            />
+          </div>
         </div>
 
-        {/* Controls Section */}
-        <div className={`
-          w-full max-w-2xl mx-auto px-4
-          ${isKeyboardVisible ? 'space-y-2' : 'space-y-4'}
-          transition-all duration-300
-        `}>
-          <ProgressBar
-            timeRemaining={gameState.timeRemaining}
-            totalTime={levelConfig.timeLimit}
-          />
-          
-          <div className={`mb-${isKeyboardVisible ? '2' : '4'}`}>
+        {/* Game Area */}
+        <div 
+          className="absolute inset-0 flex flex-col"
+          style={{
+            height: isKeyboardVisible ? `${viewportHeight - keyboardHeight}px` : '100%',
+            paddingTop: isKeyboardVisible ? '3rem' : '5rem',
+            paddingBottom: isKeyboardVisible ? '0.5rem' : '1rem',
+          }}
+        >
+          {/* Current Letter Section */}
+          <div 
+            className="flex-grow flex items-center justify-center"
+            style={{
+              transform: isKeyboardVisible ? 'scale(0.8)' : 'none',
+              transition: 'transform 0.2s ease'
+            }}
+          >
+            <CurrentLetter 
+              letter={gameState.currentLetter}
+              nextLetter={gameState.nextLetter}
+              level={currentLevel}
+              minLength={levelConfig.minWordLength}
+            />
+          </div>
+
+          {/* Controls Section */}
+          <div className="w-full max-w-2xl mx-auto px-4 space-y-2">
+            <ProgressBar
+              timeRemaining={gameState.timeRemaining}
+              totalTime={levelConfig.timeLimit}
+            />
+            
             <WordInput
               value={gameState.wordInput}
               onChange={handleInputChange}
@@ -198,21 +158,21 @@ export default function App() {
             />
           </div>
         </div>
+
+        {gameState.isGameOver && (
+          <GameOver
+            score={gameState.score}
+            highScore={gameState.highScore}
+            level={currentLevel}
+            attemptedWord={gameState.wordInput}
+            condition={gameState.gameOverReason as GameOverCondition}
+            onRestart={restartGame}
+            setShowCover={setShowCover}
+          />
+        )}
+
+        <Credits isKeyboardVisible={isKeyboardVisible} />
       </div>
-
-      {gameState.isGameOver && (
-        <GameOver
-          score={gameState.score}
-          highScore={gameState.highScore}
-          level={currentLevel}
-          attemptedWord={gameState.wordInput}
-          condition={gameState.gameOverReason as GameOverCondition}
-          onRestart={restartGame}
-          setShowCover={setShowCover}
-        />
-      )}
-
-      <Credits />
     </div>
   );
 }
