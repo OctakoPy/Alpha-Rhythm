@@ -35,11 +35,15 @@ export default function App() {
   useEffect(() => {
     const disableScroll = () => {
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
       document.body.style.height = '100%';
     };
 
     const enableScroll = () => {
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
       document.body.style.height = '';
     };
 
@@ -50,9 +54,24 @@ export default function App() {
     }
 
     return () => {
-      enableScroll(); // Cleanup on unmount
+      enableScroll(); // Re-enable scrolling when component unmounts
     };
   }, [showCover, gameState.isGameOver]);
+
+  useEffect(() => {
+    const handleViewportResize = () => {
+      const viewport = window.visualViewport;
+      if (viewport) {
+        document.body.style.height = `${viewport.height}px`; // Lock height dynamically
+      }
+    };
+
+    window.visualViewport?.addEventListener('resize', handleViewportResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleViewportResize);
+    };
+  }, []);
 
   useEffect(() => {
     const initializeGame = async () => {
