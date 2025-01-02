@@ -32,20 +32,24 @@ export default function App() {
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
 
+  // Disable scrolling on body during gameplay
   useEffect(() => {
     const disableScroll = () => {
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.top = '0';
+      document.body.style.left = '0';
       document.body.style.width = '100%';
-      document.body.style.height = '100vh'; // Lock the body height to the full viewport height
+      document.body.style.height = '100vh'; // Lock the height to the viewport height
     };
 
     const enableScroll = () => {
       document.body.style.overflow = '';
       document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
       document.body.style.width = '';
-      document.body.style.height = ''; // Reset the height when scrolling is enabled again
+      document.body.style.height = ''; // Reset the height after gameplay or cover
     };
 
     if (!showCover && !gameState.isGameOver) {
@@ -55,23 +59,22 @@ export default function App() {
     }
 
     return () => {
-      enableScroll(); // Clean up and re-enable scroll when component unmounts or game ends
+      enableScroll(); // Re-enable scroll on cleanup or game over
     };
   }, [showCover, gameState.isGameOver]);
 
+  // Handle mobile adjustments for keyboard visibility
   useEffect(() => {
     const handleResize = () => {
       if (isKeyboardVisible) {
-        document.body.style.height = `${viewportHeight}px`; // Dynamically adjust body height based on viewport height
+        document.body.style.height = `${viewportHeight}px`; // Adjust body height during keyboard visibility
       } else {
-        document.body.style.height = ''; // Reset height when keyboard isn't visible
+        document.body.style.height = ''; // Reset height when keyboard is hidden
       }
     };
 
     window.addEventListener('resize', handleResize);
-
-    // Initial call to set body height on mount
-    handleResize();
+    handleResize(); // Trigger initial height adjustment
 
     return () => {
       window.removeEventListener('resize', handleResize);
