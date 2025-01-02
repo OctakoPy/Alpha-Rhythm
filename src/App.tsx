@@ -32,54 +32,34 @@ export default function App() {
 
   const { currentLevel, config: levelConfig } = useLevel(gameState.score);
 
-  // Disable scrolling on body during gameplay
   useEffect(() => {
-    const disableScroll = () => {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.top = '0';
-      document.body.style.left = '0';
-      document.body.style.width = '100%';
-      document.body.style.height = '100vh'; // Lock the height to the viewport height
-    };
-
-    const enableScroll = () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.width = '';
-      document.body.style.height = ''; // Reset the height after gameplay or cover
-    };
-
     if (!showCover && !gameState.isGameOver) {
-      disableScroll(); // Disable scroll during gameplay
-    } else {
-      enableScroll(); // Enable scroll during cover or game over
+      // Disable scrolling
+      const preventScrolling = (e: TouchEvent) => {
+        e.preventDefault();
+      };
+      document.ontouchmove = preventScrolling;
+  
+      // Scroll back to top when input field is focused
+      const inputFocusHandler = () => {
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+      };
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.addEventListener('focus', inputFocusHandler);
+      });
+  
+      return () => {
+        // Cleanup event listeners
+        document.ontouchmove = null;
+        inputs.forEach(input => {
+          input.removeEventListener('focus', inputFocusHandler);
+        });
+      };
     }
-
-    return () => {
-      enableScroll(); // Re-enable scroll on cleanup or game over
-    };
   }, [showCover, gameState.isGameOver]);
-
-  // Handle mobile adjustments for keyboard visibility
-  useEffect(() => {
-    const handleResize = () => {
-      if (isKeyboardVisible) {
-        document.body.style.height = `${viewportHeight}px`; // Adjust body height during keyboard visibility
-      } else {
-        document.body.style.height = ''; // Reset height when keyboard is hidden
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Trigger initial height adjustment
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [isKeyboardVisible, viewportHeight]);
+  
 
   useEffect(() => {
     const initializeGame = async () => {
