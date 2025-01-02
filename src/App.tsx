@@ -8,7 +8,6 @@ import { WordInput } from './components/WordInput';
 import { CurrentLetter } from './components/CurrentLetter';
 import { CoverPage } from './components/CoverPage';
 import { LevelDisplay } from './components/LevelDisplay';
-import { Credits } from './components/Credits';
 import { OctopusPowerup } from './components/effects/OctopusPowerup';
 import { useLevel } from './hooks/useLevel';
 import { useGameLogic } from './hooks/useGameLogic';
@@ -20,9 +19,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showCover, setShowCover] = useState(false);
-  
+
   const { isKeyboardVisible, viewportHeight, keyboardHeight } = useVirtualKeyboard();
-  
+
   const {
     gameState,
     handleInputChange,
@@ -54,11 +53,24 @@ export default function App() {
     restartGame();
   };
 
+  const Credits = () => (
+    <div
+      className="transition-all duration-200 text-white/70 font-serif italic text-sm text-center absolute"
+      style={{
+        bottom: isKeyboardVisible ? `${keyboardHeight}px` : '1rem',
+        right: '1rem',
+      }}
+    >
+      <div>Created by Octako</div>
+      <div>© 2024</div>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <h1 className="text-2xl font-bold">Loading assets...</h1>
-        <Credits isKeyboardVisible={isKeyboardVisible} />
+        <Credits />
       </div>
     );
   }
@@ -69,7 +81,7 @@ export default function App() {
         <h1 className="text-2xl font-bold text-red-500">
           Sorry! AlphaRhythm is currently down!
         </h1>
-        <Credits isKeyboardVisible={isKeyboardVisible} />
+        <Credits />
       </div>
     );
   }
@@ -78,7 +90,7 @@ export default function App() {
     return (
       <>
         <CoverPage highScore={gameState.highScore} onStartGame={handleStartGame} />
-        <Credits isKeyboardVisible={isKeyboardVisible} />
+        <Credits />
       </>
     );
   }
@@ -94,7 +106,7 @@ export default function App() {
       </div>
 
       {/* Main game container with keyboard-aware layout */}
-      <div 
+      <div
         className="relative min-h-screen"
         style={{
           height: isKeyboardVisible ? `${viewportHeight}px` : '100vh',
@@ -102,7 +114,7 @@ export default function App() {
         }}
       >
         {/* Header section */}
-        <div 
+        <div
           className={`absolute w-full px-4 transition-all duration-200 ${
             isKeyboardVisible ? 'top-2' : 'top-4'
           }`}
@@ -110,7 +122,7 @@ export default function App() {
           <div className="flex justify-between items-center max-w-5xl mx-auto">
             <LevelDisplay level={currentLevel} />
             <GameHeader tempo={levelConfig.tempo} />
-            <GameStats 
+            <GameStats
               score={gameState.score}
               highScore={gameState.highScore}
             />
@@ -118,7 +130,7 @@ export default function App() {
         </div>
 
         {/* Game Area */}
-        <div 
+        <div
           className="absolute inset-0 flex flex-col"
           style={{
             height: isKeyboardVisible ? `${viewportHeight - keyboardHeight}px` : '100%',
@@ -127,14 +139,14 @@ export default function App() {
           }}
         >
           {/* Current Letter Section */}
-          <div 
+          <div
             className="flex-grow flex items-center justify-center"
             style={{
               transform: isKeyboardVisible ? 'scale(0.8)' : 'none',
               transition: 'transform 0.2s ease'
             }}
           >
-            <CurrentLetter 
+            <CurrentLetter
               letter={gameState.currentLetter}
               nextLetter={gameState.nextLetter}
               level={currentLevel}
@@ -148,7 +160,7 @@ export default function App() {
               timeRemaining={gameState.timeRemaining}
               totalTime={levelConfig.timeLimit}
             />
-            
+
             <WordInput
               value={gameState.wordInput}
               onChange={handleInputChange}
@@ -171,7 +183,7 @@ export default function App() {
           />
         )}
 
-        <Credits isKeyboardVisible={isKeyboardVisible} />
+        <Credits />
       </div>
     </div>
   );
