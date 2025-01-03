@@ -37,8 +37,78 @@ export const LEVELS: LevelConfig[] = [
     bpm: 160,
   },
   {
-    pointsRange: [30001, Infinity],
+    pointsRange: [30001, 40000],
     minWordLength: 7,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [40001, 50000],
+    minWordLength: 8,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [50001, 60000],
+    minWordLength: 9,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [60001, 70000],
+    minWordLength: 10,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [70001, 80000],
+    minWordLength: 11,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [80001, 90000],
+    minWordLength: 12,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [90001, 100000],
+    minWordLength: 13,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [100001, 110000],
+    minWordLength: 14,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [110001, 120000],
+    minWordLength: 15,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [120001, 130000],
+    minWordLength: 16,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [130001, Infinity],
+    minWordLength: 17,
     timeLimit: 4,
     tempo: 'Ultra Fast',
     bpm: 180,
@@ -46,7 +116,7 @@ export const LEVELS: LevelConfig[] = [
 ];
 
 export const calculateMinWordLength = (score: number, baseMinLength: number): number => {
-  if (score <= 30000) return baseMinLength;
+  if (score <= 130000) return baseMinLength;
   
   // For every 10000 points above 30000, increase min length by 1
   const additionalLength = Math.floor((score - 30000) / 10000);
