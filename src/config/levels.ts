@@ -107,13 +107,77 @@ export const LEVELS: LevelConfig[] = [
     bpm: 180,
   },
   {
-    pointsRange: [130001, Infinity],
+    pointsRange: [130001, 140000],
     minWordLength: 17,
     timeLimit: 4,
     tempo: 'Ultra Fast',
     bpm: 180,
   },
+  {
+    pointsRange: [140001, 150000],
+    minWordLength: 18,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [150001, 160000],
+    minWordLength: 19,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [160001, 170000],
+    minWordLength: 20,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [170001, 180000],
+    minWordLength: 21,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [180001, 190000],
+    minWordLength: 22,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [190001, 200000],
+    minWordLength: 23,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [200001, 210000],
+    minWordLength: 24,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [210001, 220000],
+    minWordLength: 25,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
+  {
+    pointsRange: [220001, Infinity],
+    minWordLength: 26,
+    timeLimit: 4,
+    tempo: 'Ultra Fast',
+    bpm: 180,
+  },
 ];
+
 
 export const calculateMinWordLength = (score: number, baseMinLength: number): number => {
   if (score <= 130000) return baseMinLength;
