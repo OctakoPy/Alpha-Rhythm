@@ -180,7 +180,7 @@ export const LEVELS: LevelConfig[] = [
 
 
 export const calculateMinWordLength = (score: number, baseMinLength: number): number => {
-  if (score <= 130000) return baseMinLength;
+  if (score <= 220000) return baseMinLength;
   
   // For every 10000 points above 30000, increase min length by 1
   const additionalLength = Math.floor((score - 30000) / 10000);
