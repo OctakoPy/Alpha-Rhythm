@@ -1,6 +1,6 @@
 # Overview
 
-I developed this project using Bolt AI. It is pretty crazy that it just took me a week to get the fundamental gameplay working, then one more week for some tweaking and adjustments. This was also my first foray into Typescript, React and Supabase integration.
+I developed this project using Bolt AI. It is pretty crazy that it took me just a week (about 15 minutes/day) to get the fundamental gameplay working, then one more week for some tweaking and adjustments. This was also my first foray into Typescript, React and Supabase integration.
 
 # Gameplay
 
