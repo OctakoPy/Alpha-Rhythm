@@ -5,12 +5,15 @@ I developed this project using Bolt AI. It is pretty crazy that it took me just 
 # Gameplay
 
 • Type words that start with the shown letter
+
 • Each word must be unique - no repeats!
 • Longer words give more points
+
 • There are 6 levels to beat. As you level up:
     Required word length increases
     Time limit decreases
     Music gets faster
+    
 • Ascend past level 6 and immortalise your score on the all-time leaderboard!
 
 # Issues
