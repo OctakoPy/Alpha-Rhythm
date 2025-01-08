@@ -10,6 +10,7 @@ I developed this project using Bolt AI. It is pretty crazy that it took me just 
 • Longer words give more points
 
 • There are 6 levels to beat. As you level up:
+
     Required word length increases
     Time limit decreases
     Music gets faster
