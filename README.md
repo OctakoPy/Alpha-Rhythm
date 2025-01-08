@@ -1,6 +1,6 @@
 # Overview
 
-I developed this project using Bolt AI. It is pretty crazy that it took me just a week (about 15 minutes/day) to get the fundamental gameplay working, then one more week for some tweaking and adjustments. This was also my first foray into Typescript, React and Supabase integration.
+I developed this project using Bolt AI and Lovable AI. It is pretty crazy that it took me just a week (about 15 minutes/day) to get the fundamental gameplay working, then one more week for some tweaking and adjustments. This was also my first foray into Typescript, React and Supabase integration.
 
 If you haven't tried it out, the game is hosted here: https://alpha-rhythm.pages.dev/
 
