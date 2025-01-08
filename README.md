@@ -19,7 +19,9 @@ I developed this project using Bolt AI. It is pretty crazy that it took me just 
 
 # Issues
 • Dictionary can easily be abused to cheat the game
+
 • Database calls are exposed in frontend
+
 • Game gets boring after first few rounds
 
 # Credits
